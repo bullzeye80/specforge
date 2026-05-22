@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-22T04:26:58.920Z",
+  "generatedAt": "2026-05-22T06:04:43.802Z",
   "contributors": {
     "huyhoangnhh98": {
       "lastAnnouncedTier": "spark",
@@ -672,8 +672,8 @@
     },
     "epicsagas": {
       "lastAnnouncedTier": "signal",
-      "lastKnownScore": 35,
-      "lastCheckedAt": "2026-05-15T16:30:25.378Z",
+      "lastKnownScore": 51,
+      "lastCheckedAt": "2026-05-22T06:04:43.802Z",
       "scoreVersion": "weighted-v1",
       "lastAnnouncedAt": "2026-05-15T16:30:25.378Z"
     },
