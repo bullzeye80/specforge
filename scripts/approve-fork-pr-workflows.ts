@@ -1,3 +1,5 @@
+import { fileURLToPath } from "node:url";
+
 type PullRequest = {
   number: number;
   state: string;
@@ -39,9 +41,6 @@ type WorkflowRunsResponse = {
   workflow_runs: WorkflowRun[];
 };
 
-const repo = requireEnv("GITHUB_REPOSITORY");
-const token = requireEnv("GITHUB_TOKEN");
-const prNumber = Number(requireEnv("PR_NUMBER"));
 const dryRun = process.env.DRY_RUN === "true";
 
 // Workflow allowlisting is the security boundary: fork PRs may touch broader
@@ -54,7 +53,7 @@ const allowedWorkflowPaths = new Set([
   ".github/workflows/visual-pr-verify.yml",
 ]);
 
-function normalizeWorkflowPath(path: string): string {
+export function normalizeWorkflowPath(path: string): string {
   const suffixIndex = path.indexOf("@");
   return suffixIndex >= 0 ? path.slice(0, suffixIndex) : path;
 }
@@ -63,6 +62,18 @@ function requireEnv(name: string): string {
   const value = process.env[name];
   if (!value) throw new Error(`${name} is required`);
   return value;
+}
+
+function getRepo(): string {
+  return requireEnv("GITHUB_REPOSITORY");
+}
+
+function getToken(): string {
+  return requireEnv("GITHUB_TOKEN");
+}
+
+function getPrNumber(): number {
+  return Number(requireEnv("PR_NUMBER"));
 }
 
 function isAllowedChangedPath(path: string): boolean {
@@ -114,17 +125,13 @@ function changedPathSet(file: PullRequestFile): string[] {
   return [file.filename, file.previous_filename].filter((path): path is string => Boolean(path));
 }
 
-function runBelongsToPullRequest(run: WorkflowRun, pull: PullRequest): boolean {
-  return run.pull_requests.some((runPull) => {
-    return (
-      runPull.number === pull.number &&
-      runPull.head.sha === pull.head.sha &&
-      runPull.head.repo?.full_name === pull.head.repo?.full_name &&
-      runPull.base.ref === pull.base.ref &&
-      runPull.base.sha === pull.base.sha &&
-      runPull.base.repo.full_name === pull.base.repo.full_name
-    );
-  });
+export function isPendingApprovalRun(run: WorkflowRun, pull: PullRequest): boolean {
+  return (
+    run.head_sha === pull.head.sha &&
+    run.event === "pull_request" &&
+    run.conclusion === "action_required" &&
+    allowedWorkflowPaths.has(normalizeWorkflowPath(run.path))
+  );
 }
 
 async function github<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -132,7 +139,7 @@ async function github<T>(path: string, init: RequestInit = {}): Promise<T> {
     ...init,
     headers: {
       Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${getToken()}`,
       "User-Agent": "open-design-fork-pr-workflow-approver",
       "X-GitHub-Api-Version": "2022-11-28",
       ...init.headers,
@@ -159,6 +166,8 @@ async function githubPaginated<T>(path: string): Promise<T[]> {
 }
 
 async function approveRun(run: WorkflowRun): Promise<void> {
+  const repo = getRepo();
+
   if (dryRun) {
     console.log(`[dry-run] would approve workflow run ${run.id} (${run.name ?? run.path})`);
     return;
@@ -169,6 +178,9 @@ async function approveRun(run: WorkflowRun): Promise<void> {
 }
 
 async function main(): Promise<void> {
+  const repo = getRepo();
+  const prNumber = getPrNumber();
+
   if (!Number.isInteger(prNumber) || prNumber <= 0) {
     throw new Error(`Invalid PR_NUMBER: ${process.env.PR_NUMBER ?? ""}`);
   }
@@ -229,15 +241,7 @@ async function main(): Promise<void> {
   const runs = await github<WorkflowRunsResponse>(
     `/repos/${repo}/actions/runs?event=pull_request&head_sha=${pull.head.sha}&status=action_required&per_page=100`,
   );
-  const pendingRuns = runs.workflow_runs.filter((run) => {
-    return (
-      run.head_sha === pull.head.sha &&
-      run.event === "pull_request" &&
-      run.status === "action_required" &&
-      allowedWorkflowPaths.has(normalizeWorkflowPath(run.path)) &&
-      runBelongsToPullRequest(run, pull)
-    );
-  });
+  const pendingRuns = runs.workflow_runs.filter((run) => isPendingApprovalRun(run, pull));
 
   if (pendingRuns.length === 0) {
     console.log(`No action_required pull_request workflow runs found for PR #${prNumber} at ${pull.head.sha}.`);
@@ -247,4 +251,6 @@ async function main(): Promise<void> {
   for (const run of pendingRuns) await approveRun(run);
 }
 
-await main();
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  await main();
+}
