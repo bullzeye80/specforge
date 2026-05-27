@@ -174,6 +174,7 @@ export function BoardComposerPopover({
   bounds,
   offset,
   docked = false,
+  targetVisible = true,
 }: {
   target: PreviewCommentSnapshot;
   existing: PreviewComment | null;
@@ -194,13 +195,14 @@ export function BoardComposerPopover({
   bounds?: PopoverBounds;
   offset?: PopoverOffset;
   docked?: boolean;
+  targetVisible?: boolean;
 }) {
   const pendingCount = notes.length + (draft.trim() ? 1 : 0);
   const hasCommentChange = !existing || draft.trim() !== existing.note.trim();
   const podMembers = target.podMembers ?? [];
   return (
     <div
-      className={`comment-popover${docked ? ' comment-popover-docked' : ''}`}
+      className={`comment-popover${docked ? ' comment-popover-docked' : ''}${targetVisible ? '' : ' is-target-offscreen'}`}
       data-testid="comment-popover"
       role="dialog"
       aria-modal="false"

@@ -1127,6 +1127,24 @@ function meaningfulDomFallbackTarget(el) {
   function requestPreviewScrollRestore(){
     window.parent.postMessage({ type: 'od:preview-scroll-request' }, '*');
   }
+  function scrollCommentTargetIntoView(data){
+    var el = null;
+    if (data.selector) {
+      try { el = document.querySelector(String(data.selector)); } catch (_) { el = null; }
+    }
+    if (!el && data.elementId) {
+      try {
+        var id = String(data.elementId).replace(/"/g, '\\"');
+        el = document.querySelector('[data-od-id="' + id + '"], [data-screen-label="' + id + '"]');
+      } catch (_) { el = null; }
+    }
+    if (!el || typeof el.scrollIntoView !== 'function') return;
+    el.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' });
+    window.setTimeout(function(){
+      schedulePostTargets();
+      schedulePostPreviewScroll();
+    }, 120);
+  }
   function postTargets(){
     if (!active()) return;
     window.parent.postMessage({ type: 'od:comment-targets', targets: allTargets() }, '*');
@@ -1215,6 +1233,10 @@ function meaningfulDomFallbackTarget(el) {
       if (frame) frame.scrollTo(Number(data.frameLeft || 0), Number(data.frameTop || 0));
       if (el) el.scrollTo(Number(data.canvasLeft || 0), Number(data.canvasTop || 0));
       setTimeout(postPreviewScroll, 0);
+      return;
+    }
+    if (data.type === 'od:comment-scroll-to-target') {
+      scrollCommentTargetIntoView(data);
       return;
     }
     if (data.type === 'od:inspect-mode') {

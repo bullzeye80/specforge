@@ -1994,6 +1994,23 @@ function commentActivityAt(comment: PreviewComment): number {
   );
 }
 
+function commentTargetIntersectsPreview(
+  target: PreviewCommentSnapshot | null,
+  scale: number,
+  offset: { x: number; y: number },
+  bounds?: PreviewCanvasSize,
+): boolean {
+  if (!target || !bounds?.width || !bounds.height) return true;
+  const rect = overlayBoundsFromSnapshot(target, scale, offset);
+  const margin = 8;
+  return (
+    rect.left + rect.width > margin &&
+    rect.top + rect.height > margin &&
+    rect.left < bounds.width - margin &&
+    rect.top < bounds.height - margin
+  );
+}
+
 function commentDisplayLabel(comment: PreviewComment, t: TranslateFn): string {
   if (comment.elementId.startsWith('pin-')) return t('chat.comments.pin');
   const label = String(comment.label || '').trim().toLowerCase();
@@ -4956,7 +4973,7 @@ const [manualEditTargets, setManualEditTargets] = useState<ManualEditTarget[]>([
           current
             ? current.selectionKind === 'pod'
               ? current
-              : next.get(current.elementId) ?? null
+              : next.get(current.elementId) ?? current
             : null
         ));
         setHoveredCommentTarget((current) => (
@@ -6017,6 +6034,16 @@ const [manualEditTargets, setManualEditTargets] = useState<ManualEditTarget[]>([
     void exitManualEditModeAfterFlush();
   }
 
+  function returnToActiveCommentTarget() {
+    if (!activeCommentTarget) return;
+    iframeRef.current?.contentWindow?.postMessage({
+      type: 'od:comment-scroll-to-target',
+      elementId: activeCommentTarget.elementId,
+      selector: activeCommentTarget.selector,
+    }, '*');
+    setHoveredCommentTarget(activeCommentTarget);
+  }
+
   function queueCurrentDraft() {
     const note = commentDraft.trim();
     if (!note) return;
@@ -6128,6 +6155,16 @@ const [manualEditTargets, setManualEditTargets] = useState<ManualEditTarget[]>([
     activeCommentTarget
       ? visibleSideComments.find((comment) => comment.elementId === activeCommentTarget.elementId)?.id ?? null
       : null
+  );
+  const activeCommentTargetVisible = commentTargetIntersectsPreview(
+    activeCommentTarget,
+    overlayPreviewScale,
+    { x: overlayPreviewTransform.offsetX, y: overlayPreviewTransform.offsetY },
+    previewBodySize,
+  );
+  const hoveredTargetHasSavedComment = Boolean(
+    hoveredCommentTarget &&
+    visibleSideComments.some((comment) => comment.elementId === hoveredCommentTarget.elementId),
   );
   useEffect(() => {
     if (!boardMode || !activePreviewCommentId) return;
@@ -6332,6 +6369,7 @@ const [manualEditTargets, setManualEditTargets] = useState<ManualEditTarget[]>([
       offset={{ x: overlayPreviewTransform.offsetX, y: overlayPreviewTransform.offsetY }}
       bounds={previewBodySize}
       docked={false}
+      targetVisible={activeCommentTargetVisible}
     />
   ) : null;
   const commentSidePanel = commentPanelOpen ? (
@@ -7023,7 +7061,18 @@ const [manualEditTargets, setManualEditTargets] = useState<ManualEditTarget[]>([
               </div>
             ) : null}
             {commentComposer}
-            {boardMode && !commentCreateMode && hoveredCommentTarget && (!activeCommentTarget || commentPortalHost) ? (
+            {boardMode && activeCommentTarget && !activeCommentTargetVisible ? (
+              <button
+                type="button"
+                className="comment-return-anchor"
+                data-testid="comment-return-anchor"
+                onClick={returnToActiveCommentTarget}
+              >
+                <span aria-hidden="true">📍</span>
+                <span>Return to element</span>
+              </button>
+            ) : null}
+            {boardMode && !commentCreateMode && hoveredCommentTarget && !hoveredTargetHasSavedComment && (!activeCommentTarget || commentPortalHost) ? (
               <AnnotationHoverPopover
                 target={hoveredCommentTarget}
                 scale={overlayPreviewScale}
