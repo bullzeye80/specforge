@@ -157,6 +157,26 @@ describe('i18n locales', () => {
     }
   });
 
+  it('keeps workspace load failure copy translated in Chinese', () => {
+    const translatedKeys: Array<keyof Dict> = [
+      'workspaceLoad.kicker',
+      'workspaceLoad.loadFailedTitle',
+      'workspaceLoad.refreshFailedTitle',
+      'workspaceLoad.retry',
+      'workspaceLoad.retrying',
+      'workspaceLoad.personalFallback',
+      'workspaceLoad.defaultError',
+      'workspaceLoad.projectsError',
+      'workspaceLoad.emptyListError',
+      'workspaceLoad.inviteSwitchError',
+    ];
+
+    for (const key of translatedKeys) {
+      expect(zhCN[key], `zh-CN.${key}`).not.toBe(en[key]);
+      expect(zhTW[key], `zh-TW.${key}`).not.toBe(en[key]);
+    }
+  });
+
   it('keeps Routines settings page copy translated in Chinese (issue #1372)', () => {
     const translatedKeys: Array<keyof Dict> = [
       'routines.title',

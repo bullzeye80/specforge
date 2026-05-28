@@ -423,14 +423,14 @@ export function App() {
       ? result.currentWorkspaceId
       : result.workspaces[0]?.id;
     if (!nextWorkspaceId) {
-      throw new Error('Workspace list response did not include any workspaces.');
+      throw new Error(t('workspaceLoad.emptyListError'));
     }
     setWorkspaces(result.workspaces);
     setCurrentUserId(result.currentUserId);
     setCurrentWorkspaceId(nextWorkspaceId);
     setWorkspaceLoadError(null);
     return nextWorkspaceId;
-  }, []);
+  }, [t]);
 
   const reloadWorkspaces = useCallback(async () => {
     setWorkspaceLoadError(null);
@@ -440,14 +440,14 @@ export function App() {
       const nextWorkspaceId = applyWorkspacesResponse(result);
       await loadWorkspaceDataFor(nextWorkspaceId);
     } catch (err) {
-      setWorkspaceLoadError(messageFromError(err, 'Could not load workspaces.'));
+      setWorkspaceLoadError(messageFromError(err, t('workspaceLoad.defaultError')));
       setWorkspaces([]);
       setCurrentUserId(null);
       setProjects([]);
       setTemplates([]);
       setProjectsLoading(false);
     }
-  }, [applyWorkspacesResponse, loadWorkspaceDataFor, messageFromError]);
+  }, [applyWorkspacesResponse, loadWorkspaceDataFor, messageFromError, t]);
 
   // Bootstrap — detect daemon, then fan out independent fetches so each
   // entry-view tab can render the moment its own data lands. Earlier this
@@ -517,7 +517,7 @@ export function App() {
         await loadWorkspaceDataFor(nextWorkspaceId, () => cancelled);
       }).catch((err) => {
         if (cancelled) return;
-        setWorkspaceLoadError(messageFromError(err, 'Could not load workspaces.'));
+        setWorkspaceLoadError(messageFromError(err, t('workspaceLoad.defaultError')));
         setWorkspaces([]);
         setCurrentUserId(null);
         setProjects([]);
@@ -701,7 +701,7 @@ export function App() {
     if (requestId !== workspaceSelectionRequestRef.current || dataRequestId !== workspaceDataRequestRef.current) return;
     if (!selected) {
       setProjectsLoading(false);
-      throw new Error('Could not switch to the invited workspace.');
+      throw new Error(t('workspaceLoad.inviteSwitchError'));
     }
     const nextWorkspaceId = selected.workspaces.some((workspace) => workspace.id === selected.currentWorkspaceId)
       ? selected.currentWorkspaceId
@@ -719,12 +719,12 @@ export function App() {
     } catch (err) {
       if (requestId === workspaceSelectionRequestRef.current && dataRequestId === workspaceDataRequestRef.current) {
         void setCurrentWorkspace(previousWorkspaceId);
-        setWorkspaceLoadError(messageFromError(err, 'Could not load workspace projects.'));
+        setWorkspaceLoadError(messageFromError(err, t('workspaceLoad.projectsError')));
         setProjectsLoading(false);
       }
       throw err;
     }
-  }, [fetchWorkspaceDataFor, messageFromError]);
+  }, [fetchWorkspaceDataFor, messageFromError, t]);
 
   const handleLegacyWorkspaceInviteAccepted = useCallback(async (result: AcceptWorkspaceInviteResponse) => {
     await handleWorkspaceInviteAccepted(result);
@@ -748,7 +748,7 @@ export function App() {
     if (requestId !== workspaceSelectionRequestRef.current || dataRequestId !== workspaceDataRequestRef.current) return;
     if (!selected) {
       setProjectsLoading(false);
-      throw new Error('Could not switch workspace.');
+      throw new Error(t('workspaceNav.switchFailed'));
     }
     const next = selected;
     const nextWorkspaceId = next.workspaces.some((workspace) => workspace.id === next.currentWorkspaceId)
@@ -767,12 +767,12 @@ export function App() {
     } catch (err) {
       if (requestId === workspaceSelectionRequestRef.current && dataRequestId === workspaceDataRequestRef.current) {
         void setCurrentWorkspace(previousWorkspaceId);
-        setWorkspaceLoadError(messageFromError(err, 'Could not load workspace projects.'));
+        setWorkspaceLoadError(messageFromError(err, t('workspaceLoad.projectsError')));
         setProjectsLoading(false);
       }
       throw err;
     }
-  }, [fetchWorkspaceDataFor, messageFromError]);
+  }, [fetchWorkspaceDataFor, messageFromError, t]);
 
   const handleCreateWorkspaceInvite = useCallback(async (
     workspaceId: string,
@@ -1719,10 +1719,10 @@ export function App() {
           <div className="workspace-shell__body">
             {workspaceLoadError && workspaces.length > 0 ? (
               <div className="workspace-load-error" role="alert">
-                <strong>Could not refresh workspaces.</strong>
+                <strong>{t('workspaceLoad.refreshFailedTitle')}</strong>
                 <span>{workspaceLoadError}</span>
                 <button type="button" className="ghost" onClick={() => void reloadWorkspaces()}>
-                  Retry
+                  {t('workspaceLoad.retry')}
                 </button>
               </div>
             ) : null}
@@ -1746,7 +1746,7 @@ export function App() {
           currentWorkspaceId={currentWorkspaceId}
           currentWorkspaceName={
             workspaces.find((workspace) => workspace.id === currentWorkspaceId)?.name
-            ?? 'Personal Workspace'
+            ?? t('workspaceLoad.personalFallback')
           }
           currentWorkspaceRole={workspaces.find((workspace) => workspace.id === currentWorkspaceId)?.currentUserRole}
           composioConfigLoading={composioConfigLoading}
@@ -1815,15 +1815,16 @@ function WorkspaceLoadFailure({
   retrying: boolean;
   onRetry: () => void;
 }) {
+  const { t } = useI18n();
   return (
     <main className="workspace-load-failure" role="alert">
       <div>
-        <p className="kicker">WORKSPACES</p>
-        <h1>Could not load workspaces</h1>
+        <p className="kicker">{t('workspaceLoad.kicker')}</p>
+        <h1>{t('workspaceLoad.loadFailedTitle')}</h1>
         <p>{message}</p>
       </div>
       <button type="button" className="primary" disabled={retrying} onClick={onRetry}>
-        {retrying ? 'Retrying...' : 'Retry'}
+        {retrying ? t('workspaceLoad.retrying') : t('workspaceLoad.retry')}
       </button>
     </main>
   );

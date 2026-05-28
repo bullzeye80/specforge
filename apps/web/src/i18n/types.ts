@@ -1744,6 +1744,16 @@ export interface Dict {
   'workspaceNav.inviteTeamRequired': string;
   'workspaceNav.inviteMembers': string;
   'workspaceNav.switchFailed': string;
+  'workspaceLoad.kicker': string;
+  'workspaceLoad.loadFailedTitle': string;
+  'workspaceLoad.refreshFailedTitle': string;
+  'workspaceLoad.retry': string;
+  'workspaceLoad.retrying': string;
+  'workspaceLoad.personalFallback': string;
+  'workspaceLoad.defaultError': string;
+  'workspaceLoad.projectsError': string;
+  'workspaceLoad.emptyListError': string;
+  'workspaceLoad.inviteSwitchError': string;
   'workspaceInvite.revokedTitle': string;
   'workspaceInvite.revokedMessage': string;
   'workspaceInvite.expiredTitle': string;
