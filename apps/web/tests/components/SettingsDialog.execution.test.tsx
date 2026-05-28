@@ -1576,6 +1576,80 @@ describe('SettingsDialog execution settings Local CLI interactions', () => {
     expect(screen.queryByText('Canceled')).toBeNull();
   });
 
+  // Regression for the race called out on #3158 by both codex-connector and
+  // looper: the daemon's `cancelVelaLogin()` only SIGTERMs the vela child
+  // and keeps it in `activeLoginProcs` until it actually exits, so a
+  // `/api/integrations/vela/status` read right after a successful cancel
+  // can legally still report `loginInFlight: true`. If the AmrLoginPill
+  // listener self-refreshed on the local cancel path it would bounce back
+  // into `Signing in…` polling and surface the timeout/error path even
+  // though the user already canceled.
+  it('does not bounce back to Signing in… when daemon /status still reports loginInFlight after a local cancel (#3158)', async () => {
+    let cancelReceived = false;
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = input.toString();
+      if (url === '/api/memory') {
+        return new Response(
+          JSON.stringify({ enabled: true, memories: [], extraction: null }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        );
+      }
+      if (url === '/api/integrations/vela/status') {
+        // Keep reporting in-flight even *after* the cancel API succeeds —
+        // this is the SIGTERM-to-exit window where the daemon hasn't reaped
+        // the vela child yet.
+        return new Response(
+          JSON.stringify({
+            loggedIn: false,
+            loginInFlight: true,
+            profile: 'local',
+            user: null,
+            configPath: '/Users/test/.amr/config.json',
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } },
+        );
+      }
+      if (url === '/api/integrations/vela/login/cancel' && init?.method === 'POST') {
+        cancelReceived = true;
+        return new Response(JSON.stringify({ canceled: true }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        });
+      }
+      throw new Error(`Unexpected fetch: ${url}`);
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderSettingsDialog(
+      { mode: 'daemon', agentId: 'amr' },
+      { agents: [amrAgent] },
+    );
+
+    fireEvent.click(screen.getByRole('tab', { name: /Local CLI.*1 installed/i }));
+    const amrCard = screen.getByRole('button', { name: /^Open Design AMR\b/ }).closest('.agent-card') as HTMLElement;
+    expect(await screen.findByText('Signing in…')).toBeTruthy();
+
+    fireEvent.mouseEnter(amrCard);
+    fireEvent.click(await screen.findByRole('button', { name: 'Cancel' }));
+
+    expect(await screen.findByText('Canceled')).toBeTruthy();
+    expect(cancelReceived).toBe(true);
+
+    // Give the listener event handler — plus any rogue polling tick — a
+    // generous window to misfire. Under the buggy code path the pill would
+    // call /status again, see loginInFlight:true, setPending('login'), and
+    // restart polling, flipping the UI back to 'Signing in…'.
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    expect(screen.queryByText('Signing in…')).toBeNull();
+
+    // Eventually the Canceled UI window times out and Authorize re-appears.
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Authorize' })).toBeTruthy();
+    }, { timeout: 3000 });
+    // And still no bounce back to Signing in…
+    expect(screen.queryByText('Signing in…')).toBeNull();
+  });
+
   it('reconciles late AMR browser completion to Signed in after local cancel', async () => {
     let statusStage: 'pending' | 'signed-out' | 'signed-in' = 'pending';
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {

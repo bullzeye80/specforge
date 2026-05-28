@@ -280,6 +280,22 @@ export function AmrLoginPill({
         loginPendingRef.current = false;
         stopPolling();
         setPending(null);
+        // Skip the daemon refresh below. `cancelVelaLogin()` only sends
+        // SIGTERM (escalating to SIGKILL after 2s) and keeps the child
+        // in `activeLoginProcs` until it actually exits, so an
+        // immediate `/api/integrations/vela/status` read can legally
+        // still return `loginInFlight: true`. Falling through to the
+        // refresh + restart-polling branch below would bounce the pill
+        // back into 'Signing in…' and could surface the timeout/error
+        // path even though the user already canceled. Trust the cancel
+        // locally on every subscribed pill instance instead — the next
+        // explicit refresh (mount, user interaction, or a
+        // `status-changed` event) will pick up the daemon's confirmed
+        // state once the child has actually exited.
+        setStatus((current) => (
+          current ? { ...current, loginInFlight: false } : current
+        ));
+        return;
       }
       void refresh().then((next) => {
         if (!next) return;
