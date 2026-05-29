@@ -79,8 +79,9 @@ export async function createFakeAgentRuntimes(
   const runtimes = {} as Record<FakeAgentId, FakeAgentRuntime>;
   for (const agentId of runtimeIds) {
     const script = path.join(root, AGENT_BIN_NAMES[agentId]);
+    const parsedScript = path.parse(script);
     const bin = process.platform === 'win32'
-      ? script.replace(/\.js$/i, '.cmd')
+      ? path.join(parsedScript.dir, `${parsedScript.name}.cmd`)
       : script;
     await writeFile(script, renderFakeAgentScript(agentId), 'utf8');
     if (process.platform === 'win32') {

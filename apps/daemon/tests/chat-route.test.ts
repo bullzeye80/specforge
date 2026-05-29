@@ -316,11 +316,22 @@ process.stdin.on('end', () => {
             agentId: 'opencode',
             projectId,
             conversationId,
-            message: 'Create an Open Design plugin for: Create refreshable, auditable Open Design artifacts backed by APIs, and produce a folder named generated-plugin.',
+            pluginId: 'od-plugin-authoring',
+            message: '请创建一个可刷新、可审计、由 API 驱动的 Open Design 插件脚手架。',
           }),
         });
         expect(createResponse.status).toBe(202);
-        const { runId } = await createResponse.json() as { runId: string };
+        const {
+          runId,
+          pluginId,
+          appliedPluginSnapshotId,
+        } = await createResponse.json() as {
+          runId: string;
+          pluginId: string | null;
+          appliedPluginSnapshotId: string | null;
+        };
+        expect(pluginId).toBe('od-plugin-authoring');
+        expect(appliedPluginSnapshotId).toBeTruthy();
 
         const eventsResponse = await fetch(`${baseUrl}/api/runs/${runId}/events`);
         const eventsBody = await readSseUntil(eventsResponse, 'event: final');

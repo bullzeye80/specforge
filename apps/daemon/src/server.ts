@@ -2095,13 +2095,16 @@ function reconcileAssistantMessageOnRunEnd(db, runs, run) {
 }
 
 
-function isPluginAuthoringIntent(input) {
-  const text = [input?.message, input?.currentPrompt]
-    .filter((value) => typeof value === 'string' && value.trim().length > 0)
-    .join('\n');
-  if (!text) return false;
-  return /Create an Open Design plugin for:/i.test(text)
-    && /generated-plugin/i.test(text);
+function isPluginAuthoringRun(db, run) {
+  if (run?.pluginId === 'od-plugin-authoring') return true;
+  if (
+    typeof run?.appliedPluginSnapshotId === 'string'
+    && run.appliedPluginSnapshotId.length > 0
+  ) {
+    const snapshot = getSnapshot(db, run.appliedPluginSnapshotId);
+    return snapshot?.pluginId === 'od-plugin-authoring';
+  }
+  return false;
 }
 
 async function hasGeneratedPluginArtifacts(projectRoot) {
@@ -11923,7 +11926,7 @@ export async function startServer({
       if (
         code === 0 &&
         !run.cancelRequested &&
-        isPluginAuthoringIntent({ message, currentPrompt }) &&
+        isPluginAuthoringRun(db, run) &&
         !(await hasGeneratedPluginArtifacts(cwd))
       ) {
         send('error', createSseErrorPayload(
