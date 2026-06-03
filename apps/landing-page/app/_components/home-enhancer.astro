@@ -24,15 +24,11 @@
  * attributes. If you rename any of them in `page.tsx` / `wire.tsx`,
  * update the selectors below in lockstep.
  */
-import { getStableReleaseMetadata } from '../_lib/release-metadata';
-
-const stableReleaseMetadata = await getStableReleaseMetadata();
+import { RELEASE_METADATA_URL } from '../_lib/release-metadata';
 ---
 
-<script is:inline define:vars={{ stableReleaseMetadata }}>
+<script is:inline define:vars={{ RELEASE_METADATA_URL }}>
   (() => {
-    const RELEASE_METADATA = stableReleaseMetadata;
-
     const formatStars = (count) => {
       if (!Number.isFinite(count) || count <= 0) return '0';
       if (count < 1000) return String(count);
@@ -104,13 +100,20 @@ const stableReleaseMetadata = await getStableReleaseMetadata();
       }
 
       // Stable release metadata powers every "v0.x.y" badge on the page.
-      // The static fallback in each slot keeps the layout sane if the
-      // request fails.
+      // Fetch it from R2 in the browser so already-deployed static pages pick
+      // up new stable releases without a landing-page redeploy.
       const versionSlots = document.querySelectorAll('[data-github-version]');
       if (versionSlots.length === 0) return;
-      const label = formatVersion(RELEASE_METADATA);
-      if (!label) return;
-      for (const slot of versionSlots) slot.textContent = label;
+      fetch(RELEASE_METADATA_URL, {
+        headers: { Accept: 'application/json' },
+      })
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error('http error'))))
+        .then((metadata) => {
+          const label = formatVersion(metadata);
+          if (!label) return;
+          for (const slot of versionSlots) slot.textContent = label;
+        })
+        .catch(() => {});
     };
 
     const enhanceWire = () => {

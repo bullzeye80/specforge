@@ -22,13 +22,12 @@ import {
 } from '../i18n';
 import { getCatalogCounts } from '../_lib/catalog';
 import { getGithubRepoMeta } from '../_lib/github';
-import { getStableReleaseMetadata } from '../_lib/release-metadata';
+import { RELEASE_METADATA_URL } from '../_lib/release-metadata';
 
 const locale: LandingLocaleCode = localeFromPath(Astro.url.pathname);
 const localeDef = getLocaleDefinition(locale);
 const counts = await getCatalogCounts();
 const github = await getGithubRepoMeta();
-const stableReleaseMetadata = await getStableReleaseMetadata();
 const { title, description } = getHomeSeo(locale, counts);
 const canonical = new URL(localePath(locale), Astro.site).toString();
 const origin = Astro.site?.toString() ?? 'https://open-design.ai/';
@@ -197,10 +196,8 @@ const pageHtml = renderToStaticMarkup(
     <Fragment set:html={pageHtml} />
     <PreciseLazyload />
     <LocaleSwitcherScript />
-    <script is:inline define:vars={{ stableReleaseMetadata }}>
+    <script is:inline define:vars={{ RELEASE_METADATA_URL }}>
       (() => {
-        const RELEASE_METADATA = stableReleaseMetadata;
-
         const formatStars = (count) => {
           if (!Number.isFinite(count) || count <= 0) return '0';
           if (count < 1000) return String(count);
@@ -377,15 +374,23 @@ const pageHtml = renderToStaticMarkup(
 
           // Stable release metadata powers every "v0.x.y" badge on the page
           // (topbar pulse, hero CTA-foot, footer download) AND the per-OS
-          // direct download CTAs. The static fallbacks (version slot text,
-          // releases-page href) keep things sane if the request fails.
+          // direct download CTAs. Fetch it from R2 in the browser so
+          // already-deployed static pages pick up new stable releases without
+          // a landing-page redeploy.
           const versionSlots = document.querySelectorAll('[data-github-version]');
           const hasDownloadCtas = document.querySelector('[data-download-cta]') !== null;
           if (versionSlots.length === 0 && !hasDownloadCtas) return;
-          enhanceDownloadCtas(RELEASE_METADATA);
-          const label = formatVersion(RELEASE_METADATA);
-          if (!label) return;
-          for (const slot of versionSlots) slot.textContent = label;
+          fetch(RELEASE_METADATA_URL, {
+            headers: { Accept: 'application/json' },
+          })
+            .then((r) => (r.ok ? r.json() : Promise.reject(new Error('http error'))))
+            .then((metadata) => {
+              enhanceDownloadCtas(metadata);
+              const label = formatVersion(metadata);
+              if (!label) return;
+              for (const slot of versionSlots) slot.textContent = label;
+            })
+            .catch(() => {});
         };
 
         const enhanceWire = () => {

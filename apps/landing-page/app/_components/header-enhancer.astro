@@ -1,13 +1,10 @@
 ---
-import { getStableReleaseMetadata } from '../_lib/release-metadata';
-
-const stableReleaseMetadata = await getStableReleaseMetadata();
+import { RELEASE_METADATA_URL } from '../_lib/release-metadata';
 ---
 
-<script is:inline define:vars={{ stableReleaseMetadata }}>
+<script is:inline define:vars={{ RELEASE_METADATA_URL }}>
   (() => {
     const REPO_API = 'https://api.github.com/repos/nexu-io/open-design';
-    const RELEASE_METADATA = stableReleaseMetadata;
 
     const formatStars = (count) => {
       if (!Number.isFinite(count) || count <= 0) return null;
@@ -168,11 +165,18 @@ const stableReleaseMetadata = await getStableReleaseMetadata();
     const versionSlots = document.querySelectorAll('[data-github-version]');
     const hasDownloadCtas = document.querySelector('[data-download-cta]') !== null;
     if (versionSlots.length > 0 || hasDownloadCtas) {
-      enhanceDownloadCtas(RELEASE_METADATA);
-      const label = formatVersion(RELEASE_METADATA);
-      if (label) {
-        for (const slot of versionSlots) slot.textContent = label;
-      }
+      fetch(RELEASE_METADATA_URL, {
+        headers: { Accept: 'application/json' },
+      })
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error('http error'))))
+        .then((metadata) => {
+          enhanceDownloadCtas(metadata);
+          const label = formatVersion(metadata);
+          if (label) {
+            for (const slot of versionSlots) slot.textContent = label;
+          }
+        })
+        .catch(() => {});
     }
 
     // Helper used by every clipboard-write button (link copy, share
