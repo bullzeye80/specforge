@@ -511,34 +511,39 @@ describe('AssistantMessage recovered produced files', () => {
 });
 
 describe('AssistantMessage live AskUserQuestion fallback suppression', () => {
-  it('keeps legitimate preamble that precedes a live AskUserQuestion card', () => {
+  it('keeps preamble before a live AskUserQuestion but drops hedging after it', () => {
     const message = baseMessage({
       content: '',
       runStatus: 'running',
       endedAt: undefined,
-      // Intro prose the model emitted before calling the tool — preamble, not
-      // a duplicate. It precedes the (appended) live card in block order, so it
-      // must be preserved; only text after the card is hedging to drop.
-      events: [{ kind: 'text', text: 'INTROPREAMBLEXYZ' } as ChatMessage['events'][number]],
+      // event[0] = preamble (before the tool call), event[1] = duplicate
+      // hedging the model emitted after starting the tool call.
+      events: [
+        { kind: 'text', text: 'INTROPREAMBLEXYZ' } as ChatMessage['events'][number],
+        { kind: 'text', text: 'HEDGINGDUPEXYZ' } as ChatMessage['events'][number],
+      ],
     });
     const { container } = render(
       <AssistantMessage
         message={message}
         streaming
         projectId="proj-1"
+        // seq=1 → the tool call started after event[0], so it sits between the
+        // preamble and the hedging.
         liveToolInput={{
           t1: {
             name: 'AskUserQuestion',
             text: '{"questions":[{"question":"Which database?","options":[{"label":"Postgres"}]}]}',
+            seq: 1,
           },
         }}
       />,
     );
-    // The live card renders…
     expect(container.querySelector('[data-testid="ask-user-question"]')).not.toBeNull();
-    // …and the preamble before it is preserved (the earlier blanket-suppress
-    // fix wrongly dropped it).
+    // Preamble before the card is preserved…
     expect(container.textContent).toContain('INTROPREAMBLEXYZ');
+    // …hedging after the card is suppressed.
+    expect(container.textContent).not.toContain('HEDGINGDUPEXYZ');
   });
 
   it('keeps assistant prose when no live AskUserQuestion is present', () => {

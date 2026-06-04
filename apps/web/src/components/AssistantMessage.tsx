@@ -289,7 +289,7 @@ interface Props {
   // mid-token JSON accumulated from `input_json_delta`). Used to render an
   // in-flight Write/Edit's code in real time before the full `tool_use`
   // arrives. Never persisted.
-  liveToolInput?: Record<string, { name: string; text: string }>;
+  liveToolInput?: Record<string, { name: string; text: string; seq?: number }>;
   projectId: string | null;
   // Analytics context for the assistant_feedback_* events. Defaults
   // applied at the call site keep AssistantMessage usable in tests
@@ -420,43 +420,56 @@ function AssistantMessageImpl({
   // The chat-pane-level PinnedTodoBar renders the canonical TodoWrite card
   // above the composer, so we strip any TodoWrite tool-groups out of the
   // per-message flow to avoid the same task list rendering twice.
-  const persistedBlocks = stripTodoToolGroups(
-    stripEmptyThinkingBlocks(
-      suppressDuplicateQuestionForms(
-        suppressAskUserQuestionFallbackText(buildBlocks(events)),
-      ),
-    ),
+  const settledUseIds = useMemo(
+    () => new Set(events.filter((e) => e.kind === "tool_use").map((e) => e.id)),
+    [events],
   );
-  // Synthesize live code boxes for tool calls whose JSON input is still
-  // streaming (no full `tool_use` event yet). Gated to code-writing tools so
-  // a Bash/Grep/TodoWrite input stream doesn't spawn a code panel. These
-  // append after the persisted blocks since the in-flight tool is the latest
-  // activity. Disappear automatically once the full `tool_use` lands (the id
-  // leaves `liveToolInput`) or the run ends (the map is wiped upstream).
-  const liveBlocks = useMemo<Block[]>(() => {
+  // The earliest still-streaming AskUserQuestion (no full `tool_use` yet),
+  // tagged with the event position the tool call started at so we can place
+  // its live card there — text before it is preamble, text after is hedging.
+  const liveAuq = useMemo(() => {
+    if (!streaming || !liveToolInput) return null;
+    const entries = Object.entries(liveToolInput)
+      .filter(([id, e]) => !settledUseIds.has(id) && isAskUserQuestionName(e.name))
+      .map(([id, e]) => ({ id, raw: e.text, seq: e.seq ?? events.length }))
+      .sort((a, b) => a.seq - b.seq);
+    return entries[0] ?? null;
+  }, [streaming, liveToolInput, settledUseIds, events.length]);
+  // Live code boxes (Write/Edit streaming) append after everything else; they
+  // aren't part of the fallback-suppression ordering.
+  const liveCodeBlocks = useMemo<Block[]>(() => {
     if (!streaming || !liveToolInput) return [];
-    const settledUseIds = new Set(
-      events.filter((e) => e.kind === "tool_use").map((e) => e.id),
-    );
     const out: Block[] = [];
     for (const [id, entry] of Object.entries(liveToolInput)) {
       if (settledUseIds.has(id)) continue;
-      // Code-writing tools get the live code box; AskUserQuestion gets a live,
-      // read-only question card that grows token-by-token. Other tools
-      // (Bash/Grep/…) don't spawn a live block.
-      if (!isLiveCodeToolName(entry.name) && !isAskUserQuestionName(entry.name)) continue;
+      if (!isLiveCodeToolName(entry.name)) continue;
       out.push({ kind: "live-tool", id, name: entry.name, raw: entry.text });
     }
     return out;
-  }, [streaming, liveToolInput, events]);
-  // Re-run the fallback suppression over the composed list once live blocks
-  // are appended, so a still-streaming (not-yet-persisted) AskUserQuestion
-  // suppresses hedging text that follows it in block order — without dropping
-  // legitimate preamble that precedes it (an order-aware pass, not a blanket
-  // "a live AUQ exists" flag).
-  const blocks = liveBlocks.length
-    ? suppressAskUserQuestionFallbackText([...persistedBlocks, ...liveBlocks])
-    : persistedBlocks;
+  }, [streaming, liveToolInput, settledUseIds]);
+  // Compose the block list with the live AskUserQuestion at its real stream
+  // position (split the events around `seq`), then run the strip/suppress
+  // pipeline once. Because the live AUQ sits between preamble and any hedging,
+  // `suppressAskUserQuestionFallbackText` keeps the preamble and drops the
+  // hedging — matching the settled-case semantics.
+  const blocks = useMemo(() => {
+    const rawBlocks = liveAuq
+      ? (() => {
+          const n = Math.min(Math.max(liveAuq.seq, 0), events.length);
+          return [
+            ...buildBlocks(events.slice(0, n)),
+            { kind: "live-tool", id: liveAuq.id, name: "AskUserQuestion", raw: liveAuq.raw } as Block,
+            ...buildBlocks(events.slice(n)),
+            ...liveCodeBlocks,
+          ];
+        })()
+      : [...buildBlocks(events), ...liveCodeBlocks];
+    return stripTodoToolGroups(
+      stripEmptyThinkingBlocks(
+        suppressDuplicateQuestionForms(suppressAskUserQuestionFallbackText(rawBlocks)),
+      ),
+    );
+  }, [events, liveAuq, liveCodeBlocks]);
   const fileOps = useMemo(() => deriveFileOps(events), [events]);
   const produced = message.producedFiles ?? [];
   const displayedProduced = useMemo(
