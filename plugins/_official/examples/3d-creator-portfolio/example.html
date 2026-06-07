@@ -184,6 +184,11 @@
     .img-c1a { height: clamp(130px,16vw,230px); }
     .img-c1b { height: clamp(160px,22vw,340px); }
     .img-c2 { height: 100%; min-height: clamp(310px,40vw,590px); }
+
+    /* ---------- Contact footer ---------- */
+    .contact { background:#0C0C0C; display:flex; flex-direction:column; align-items:center;
+      gap: 32px; padding: 80px 24px 120px; }
+    .contact .heading-xl { font-size: clamp(2.5rem, 9vw, 120px); }
   </style>
 </head>
 <body>
@@ -226,7 +231,7 @@
     </section>
 
     <!-- ===== SERVICES ===== -->
-    <section class="services">
+    <section class="services" id="price">
       <h2 class="services-heading">Services</h2>
       <div class="svc-list" id="svcList"></div>
     </section>
@@ -236,6 +241,12 @@
       <h2 class="heading-xl hero-heading projects-heading">Project</h2>
       <div id="projectCards"></div>
     </section>
+
+    <!-- ===== CONTACT ===== -->
+    <footer class="contact" id="contact">
+      <h2 class="heading-xl hero-heading">Let&apos;s talk</h2>
+      <button class="contact-btn">Contact Me</button>
+    </footer>
 
   </div>
 
