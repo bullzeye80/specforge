@@ -103,7 +103,7 @@
   z-index: 91;
   min-width: 220px;
   max-width: 280px;
-  max-height: calc(100vh - 24px);
+  max-height: min(320px, var(--plus-menu-flyout-max-height, calc(100vh - 24px)));
   display: flex;
   flex-direction: column;
   gap: 0;

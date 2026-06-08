@@ -20,7 +20,9 @@ const PLUS_MENU_GAP = 8;
 const PLUS_MENU_WIDTH = 190;
 const PLUS_MENU_FLYOUT_WIDTH = 360;
 const PLUS_MENU_PREFERRED_MIN_HEIGHT = 180;
+const PLUS_MENU_FLYOUT_MAX_HEIGHT = 320;
 type PlusMenuFlyoutPlacement = 'right' | 'left' | 'contained';
+type PlusMenuPopupStyle = CSSProperties & Record<'--plus-menu-flyout-max-height', string>;
 
 function getFlyoutBoundary(anchor: HTMLElement): Pick<DOMRect, 'left' | 'right'> {
   const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 1024;
@@ -170,6 +172,7 @@ export function ComposerPlusMenu({
   const [query, setQuery] = useState('');
   const [menuStyle, setMenuStyle] = useState<CSSProperties | null>(null);
   const [flyoutPlacement, setFlyoutPlacement] = useState<PlusMenuFlyoutPlacement>('right');
+  const [flyoutMaxHeight, setFlyoutMaxHeight] = useState(PLUS_MENU_FLYOUT_MAX_HEIGHT);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
@@ -185,6 +188,26 @@ export function ComposerPlusMenu({
   function close() {
     setOpen(false);
     setSubmenu(null);
+  }
+
+  function updateFlyoutMaxHeight(row: HTMLDivElement | null) {
+    if (!row) {
+      setFlyoutMaxHeight(PLUS_MENU_FLYOUT_MAX_HEIGHT);
+      return;
+    }
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 640;
+    const rowTop = row.getBoundingClientRect().top - 5;
+    setFlyoutMaxHeight(
+      Math.max(120, Math.min(PLUS_MENU_FLYOUT_MAX_HEIGHT, viewportHeight - rowTop - PLUS_MENU_MARGIN)),
+    );
+  }
+
+  function openSubmenu(
+    next: 'connectors' | 'plugins' | 'mcp' | 'toolbox',
+    row: HTMLDivElement | null,
+  ) {
+    updateFlyoutMaxHeight(row);
+    setSubmenu(next);
   }
 
   useEffect(() => {
@@ -221,6 +244,8 @@ export function ComposerPlusMenu({
       if (!anchor) return;
       setMenuStyle(getPlusMenuStyle(anchor));
       setFlyoutPlacement(getFlyoutPlacement(anchor));
+      const activeRow = popupRef.current?.querySelector<HTMLDivElement>('.plus-menu__submenu-row.is-open') ?? null;
+      updateFlyoutMaxHeight(activeRow);
     };
 
     updateMenuPosition();
@@ -239,6 +264,12 @@ export function ComposerPlusMenu({
   const filteredMcp = needle
     ? mcpServers.filter((s) => mcpMatches(s, needle))
     : mcpServers;
+  const popupStyle = menuStyle
+    ? ({
+        ...menuStyle,
+        '--plus-menu-flyout-max-height': `${flyoutMaxHeight}px`,
+      } satisfies PlusMenuPopupStyle)
+    : undefined;
 
   return (
     <div className="plus-menu" ref={rootRef}>
@@ -268,7 +299,7 @@ export function ComposerPlusMenu({
           ref={popupRef}
           className={`plus-menu__popup plus-menu__popup--flyout-${flyoutPlacement}`}
           role="menu"
-          style={menuStyle ?? undefined}
+          style={popupStyle}
         >
           <button
             type="button"
@@ -292,7 +323,7 @@ export function ComposerPlusMenu({
             label={t('connectors.title')}
             icon="link"
             open={submenu === 'connectors'}
-            onOpen={() => setSubmenu('connectors')}
+            onOpen={(row) => openSubmenu('connectors', row)}
             onClose={() => setSubmenu(null)}
           >
             <div className="plus-menu__list">
@@ -341,7 +372,7 @@ export function ComposerPlusMenu({
             label={t('entry.navPlugins')}
             icon="sparkles"
             open={submenu === 'plugins'}
-            onOpen={() => setSubmenu('plugins')}
+            onOpen={(row) => openSubmenu('plugins', row)}
             onClose={() => setSubmenu(null)}
           >
             <div className="plus-menu__search">
@@ -397,7 +428,7 @@ export function ComposerPlusMenu({
             label="MCP"
             icon="link"
             open={submenu === 'mcp'}
-            onOpen={() => setSubmenu('mcp')}
+            onOpen={(row) => openSubmenu('mcp', row)}
             onClose={() => setSubmenu(null)}
           >
             <div className="plus-menu__search">
@@ -454,7 +485,7 @@ export function ComposerPlusMenu({
               label={toolboxLabel ?? t('chat.designToolbox.tooltip')}
               icon="lightbulb"
               open={submenu === 'toolbox'}
-              onOpen={() => setSubmenu('toolbox')}
+              onOpen={(row) => openSubmenu('toolbox', row)}
               onClose={() => setSubmenu(null)}
             >
               {renderToolbox(close)}
@@ -478,14 +509,16 @@ function PlusSubmenuRow({
   label: string;
   icon: IconName;
   open: boolean;
-  onOpen: () => void;
+  onOpen: (row: HTMLDivElement | null) => void;
   onClose: () => void;
   children: ReactNode;
 }) {
+  const rowRef = useRef<HTMLDivElement | null>(null);
   return (
     <div
-      className="plus-menu__submenu-row"
-      onMouseEnter={onOpen}
+      ref={rowRef}
+      className={`plus-menu__submenu-row${open ? ' is-open' : ''}`}
+      onMouseEnter={() => onOpen(rowRef.current)}
       onMouseLeave={onClose}
     >
       <button
@@ -494,7 +527,7 @@ function PlusSubmenuRow({
         className="plus-menu__item plus-menu__parent"
         aria-haspopup="menu"
         aria-expanded={open}
-        onClick={() => (open ? onClose() : onOpen())}
+        onClick={() => (open ? onClose() : onOpen(rowRef.current))}
       >
         <Icon name={icon} size={15} className="plus-menu__item-icon" />
         <span>{label}</span>

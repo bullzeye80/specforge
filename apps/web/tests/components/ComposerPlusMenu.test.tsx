@@ -241,4 +241,54 @@ describe('ComposerPlusMenu pick-row caret protection', () => {
       Object.defineProperty(window, 'innerHeight', { configurable: true, value: originalInnerHeight });
     }
   });
+
+  it('limits flyout height to the visible viewport below the hovered row', () => {
+    const originalInnerWidth = window.innerWidth;
+    const originalInnerHeight = window.innerHeight;
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1200 });
+    Object.defineProperty(window, 'innerHeight', { configurable: true, value: 520 });
+
+    try {
+      renderMenu();
+      const trigger = screen.getByTestId('plus-trigger') as HTMLButtonElement;
+      trigger.getBoundingClientRect = () =>
+        ({
+          x: 24,
+          y: 468,
+          top: 468,
+          left: 24,
+          right: 52,
+          bottom: 496,
+          width: 28,
+          height: 28,
+          toJSON: () => ({}),
+        }) as DOMRect;
+
+      fireEvent.click(trigger);
+      const pluginParent = screen.getByRole('menuitem', { name: /Plugins/i });
+      const pluginRow = pluginParent.closest('.plus-menu__submenu-row') as HTMLDivElement;
+      pluginRow.getBoundingClientRect = () =>
+        ({
+          x: 24,
+          y: 210,
+          top: 210,
+          left: 24,
+          right: 214,
+          bottom: 242,
+          width: 190,
+          height: 32,
+          toJSON: () => ({}),
+        }) as DOMRect;
+
+      fireEvent.click(pluginParent);
+
+      const menu = screen.getAllByRole('menu')[0];
+      expect(menu).toBeDefined();
+      expect(menu?.style.getPropertyValue('--plus-menu-flyout-max-height')).toBe('303px');
+      expect(screen.getByRole('menuitem', { name: /Deck Maker/i })).toBeTruthy();
+    } finally {
+      Object.defineProperty(window, 'innerWidth', { configurable: true, value: originalInnerWidth });
+      Object.defineProperty(window, 'innerHeight', { configurable: true, value: originalInnerHeight });
+    }
+  });
 });
