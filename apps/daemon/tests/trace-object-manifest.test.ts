@@ -72,29 +72,43 @@ describe('buildTraceObjectManifests', () => {
       .toEqual([true, true]);
   });
 
-  it('reads nested produced artifacts from imported project metadata roots', async () => {
+  it('reads attachments and nested produced artifacts from imported project metadata roots', async () => {
     const projectsRoot = path.join(dataDir, 'projects');
     const importedRoot = path.join(dataDir, 'imported-project');
     await mkdir(path.join(importedRoot, 'dist'), { recursive: true });
+    await mkdir(path.join(importedRoot, 'uploads'), { recursive: true });
     await writeFile(path.join(importedRoot, 'dist', 'index.html'), '<!doctype html><h1>imported</h1>');
+    await writeFile(path.join(importedRoot, 'uploads', 'brief.txt'), 'imported brief');
     await mkdir(path.join(projectsRoot, 'proj-1'), { recursive: true });
     await writeFile(path.join(projectsRoot, 'proj-1', 'index.html'), '<!doctype html><h1>wrong root</h1>');
+    await mkdir(path.join(projectsRoot, 'proj-1', 'uploads'), { recursive: true });
+    await writeFile(path.join(projectsRoot, 'proj-1', 'uploads', 'brief.txt'), 'wrong brief');
 
     const fetchSpy = vi.fn(async (_url: string, init: RequestInit) => {
       const parsed = JSON.parse(init.body as string) as {
-        objects: Array<{ storage_ref: string; filename: string; content_base64: string }>;
+        objects: Array<{
+          storage_ref: string;
+          object_class: string;
+          filename: string;
+          content_base64: string;
+        }>;
       };
-      expect(parsed.objects).toHaveLength(1);
-      expect(parsed.objects[0]!.filename).toBe('dist/index.html');
-      expect(Buffer.from(parsed.objects[0]!.content_base64, 'base64').toString('utf8'))
+      expect(parsed.objects).toHaveLength(2);
+      const attachment = parsed.objects.find((object) => object.object_class === 'attachment');
+      const artifact = parsed.objects.find((object) => object.object_class === 'artifact');
+      expect(attachment?.filename).toBe('uploads/brief.txt');
+      expect(Buffer.from(attachment!.content_base64, 'base64').toString('utf8'))
+        .toBe('imported brief');
+      expect(artifact?.filename).toBe('dist/index.html');
+      expect(Buffer.from(artifact!.content_base64, 'base64').toString('utf8'))
         .toBe('<!doctype html><h1>imported</h1>');
       return new Response(
         JSON.stringify({
-          objects: [{
-            storage_ref: parsed.objects[0]!.storage_ref,
+          objects: parsed.objects.map((object) => ({
+            storage_ref: object.storage_ref,
             status: 'available',
-            size_bytes: Buffer.from(parsed.objects[0]!.content_base64, 'base64').byteLength,
-          }],
+            size_bytes: Buffer.from(object.content_base64, 'base64').byteLength,
+          })),
         }),
         { status: 200 },
       );
@@ -106,6 +120,7 @@ describe('buildTraceObjectManifests', () => {
       runId: 'run-1',
       projectsRoot,
       projectMetadata: { baseDir: importedRoot },
+      attachmentPaths: ['uploads/brief.txt'],
       artifacts: [
         {
           summary: { slug: 'index.html', type: 'html', sizeBytes: 31 },
@@ -123,6 +138,11 @@ describe('buildTraceObjectManifests', () => {
 
     expect(fetchSpy).toHaveBeenCalledTimes(1);
     expect(manifests?.completeness).toBe('complete');
+    expect(manifests?.attachmentManifest?.[0]).toMatchObject({
+      status: 'ok',
+      extension: 'txt',
+      stored_in_open_design: true,
+    });
     expect(manifests?.artifactManifest?.[0]).toMatchObject({
       status: 'ok',
       extension: 'html',

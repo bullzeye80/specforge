@@ -348,7 +348,12 @@ async function collectSources(
       continue;
     }
     try {
-      const file = await readProjectFile(opts.projectsRoot, projectId, attachmentPath);
+      const file = await readProjectFile(
+        opts.projectsRoot,
+        projectId,
+        attachmentPath,
+        opts.projectMetadata ?? undefined,
+      );
       sources.push({
         objectClass: 'attachment',
         id,
