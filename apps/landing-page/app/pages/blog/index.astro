@@ -158,9 +158,6 @@ const localizedPostField = (
       <section class='blog-masthead'>
         <div class='container'>
           <h1 class='blog-title'>{ui.blog.title}</h1>
-          <p class='blog-sub'>
-            {ui.blog.description}
-          </p>
         </div>
       </section>
 
@@ -335,7 +332,7 @@ const localizedPostField = (
       }
       .blog-masthead {
         padding: 24px 0 14px;
-        border-bottom: 1px solid var(--line-soft);
+        border-bottom: 0;
       }
       .blog-title {
         font-family: var(--sans);
@@ -345,14 +342,6 @@ const localizedPostField = (
         line-height: 0.94;
         color: var(--ink);
         margin: 0 0 8px;
-      }
-      .blog-sub {
-        font-family: var(--body);
-        font-size: 17px;
-        line-height: 1.48;
-        color: var(--ink-soft);
-        max-width: 58ch;
-        margin-bottom: 0;
       }
       .blog-categories {
         padding: 12px 0 0;
@@ -376,17 +365,17 @@ const localizedPostField = (
         letter-spacing: 0.08em;
         text-transform: uppercase;
         color: var(--ink-mute);
-        background: rgba(247, 241, 222, 0.38);
+        background: var(--bone);
         text-decoration: none;
         transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
       }
       .blog-chip:hover {
         color: var(--ink);
-        border-color: rgba(21, 20, 15, 0.42);
-        background: rgba(247, 241, 222, 0.72);
+        border-color: rgba(38, 38, 38, 0.42);
+        background: var(--paper-warm);
       }
       .blog-chip.is-active {
-        color: var(--paper);
+        color: #ffffff;
         background: var(--ink);
         border-color: var(--ink);
       }
@@ -398,6 +387,7 @@ const localizedPostField = (
         grid-template-columns: minmax(0, 1.04fr) minmax(320px, 0.96fr);
         min-height: 252px;
         border: 1px solid var(--line);
+        border-radius: 8px;
         background: var(--bone);
         color: var(--ink);
         text-decoration: none;
@@ -431,7 +421,7 @@ const localizedPostField = (
         flex-wrap: wrap;
         gap: 12px;
         padding-top: 12px;
-        border-top: 1px solid var(--line-soft);
+        border-top: 0;
         font-family: var(--mono);
         font-size: 11px;
         letter-spacing: 0.06em;
@@ -461,7 +451,8 @@ const localizedPostField = (
         flex-direction: column;
         min-height: 100%;
         border: 1px solid var(--line);
-        background: rgba(247, 241, 222, 0.46);
+        border-radius: 8px;
+        background: var(--bone);
         color: var(--ink);
         text-decoration: none;
         overflow: hidden;
@@ -515,7 +506,7 @@ const localizedPostField = (
         gap: 14px;
         margin-top: auto;
         padding-top: 16px;
-        border-top: 1px solid var(--line-soft);
+        border-top: 0;
         font-family: var(--mono);
         font-size: 11px;
         letter-spacing: 0.06em;
@@ -533,11 +524,11 @@ const localizedPostField = (
         display: block;
         min-height: 172px;
         overflow: hidden;
-        border-bottom: 1px solid var(--line);
+        border-bottom: 0;
         background:
-          radial-gradient(circle at 20% 20%, rgba(237, 106, 90, 0.18), transparent 30%),
-          radial-gradient(circle at 80% 40%, rgba(21, 20, 15, 0.12), transparent 28%),
-          linear-gradient(135deg, rgba(239, 231, 210, 0.9), rgba(247, 241, 222, 0.58));
+          radial-gradient(circle at 20% 20%, rgba(99, 254, 19, 0.16), transparent 30%),
+          radial-gradient(circle at 80% 40%, rgba(38, 38, 38, 0.12), transparent 28%),
+          linear-gradient(135deg, rgba(245, 245, 245, 0.9), rgba(250, 250, 250, 0.58));
       }
       .media-panel.has-image {
         background: var(--bone);
@@ -559,8 +550,8 @@ const localizedPostField = (
         z-index: 1;
         background-image: linear-gradient(
           180deg,
-          rgba(247, 241, 222, 0.08),
-          rgba(21, 20, 15, 0.08)
+          rgba(255, 255, 255, 0.08),
+          rgba(38, 38, 38, 0.08)
         );
         pointer-events: none;
       }
@@ -572,8 +563,8 @@ const localizedPostField = (
         position: absolute;
         inset: 0;
         background-image:
-          linear-gradient(rgba(21, 20, 15, 0.09) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(21, 20, 15, 0.09) 1px, transparent 1px);
+          linear-gradient(rgba(38, 38, 38, 0.09) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(38, 38, 38, 0.09) 1px, transparent 1px);
         background-size: 24px 24px;
         mask-image: radial-gradient(circle at 70% 44%, black, transparent 62%);
       }
@@ -584,8 +575,8 @@ const localizedPostField = (
         bottom: 24px;
         width: 72px;
         height: 72px;
-        border: 1px solid rgba(21, 20, 15, 0.45);
-        box-shadow: -48px -38px 0 -22px rgba(237, 106, 90, 0.82);
+        border: 1px solid rgba(38, 38, 38, 0.45);
+        box-shadow: -48px -38px 0 -22px rgba(99, 254, 19, 0.82);
       }
       .media-panel-large {
         min-height: 252px;
@@ -626,7 +617,7 @@ const localizedPostField = (
         top: 32px;
         width: 128px;
         height: 96px;
-        background-image: radial-gradient(rgba(21, 20, 15, 0.38) 1.2px, transparent 1.2px);
+        background-image: radial-gradient(rgba(38, 38, 38, 0.38) 1.2px, transparent 1.2px);
         background-size: 12px 12px;
       }
       .media-orbit {
@@ -634,7 +625,7 @@ const localizedPostField = (
         top: 72px;
         width: 150px;
         height: 150px;
-        border: 28px solid rgba(237, 106, 90, 0.28);
+        border: 28px solid rgba(99, 254, 19, 0.28);
         border-radius: 50%;
       }
       .blog-empty {
@@ -667,11 +658,6 @@ const localizedPostField = (
         .blog-title {
           font-size: clamp(42px, 13vw, 50px);
           margin-bottom: 10px;
-        }
-        .blog-sub {
-          font-size: 15.5px;
-          line-height: 1.35;
-          margin-bottom: 12px;
         }
         .blog-category-strip {
           gap: 8px;

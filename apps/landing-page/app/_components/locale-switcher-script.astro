@@ -83,6 +83,32 @@ const script = `
       });
     }
 
+    // Hover-to-open, matching the sibling nav dropdowns (which expand on
+    // hover). Click and keyboard still toggle the native <details>; the
+    // outside-click + Escape handlers below still close it. A short close
+    // delay tolerates the cursor crossing the gap between trigger and panel
+    // (a CSS bridge covers that gap too). Pointer must be hover-capable so
+    // touch devices keep the tap-to-toggle behaviour.
+    const hoverCapable = !window.matchMedia || window.matchMedia('(hover: hover)').matches;
+    if (hoverCapable) {
+      for (const details of document.querySelectorAll('[data-locale-switch]')) {
+        if (details.dataset.localeHoverBound === 'true') continue;
+        details.dataset.localeHoverBound = 'true';
+        let closeTimer = null;
+        const cancelClose = () => {
+          if (closeTimer) { window.clearTimeout(closeTimer); closeTimer = null; }
+        };
+        details.addEventListener('mouseenter', () => {
+          cancelClose();
+          details.open = true;
+        });
+        details.addEventListener('mouseleave', () => {
+          cancelClose();
+          closeTimer = window.setTimeout(() => { details.open = false; }, 120);
+        });
+      }
+    }
+
     // Native <details> stays open until the summary is clicked again. Add
     // outside-click + Escape close so it behaves like a real menu.
     document.addEventListener('click', (event) => {

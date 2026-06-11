@@ -39,7 +39,7 @@ export function imageAssetSrcset(
 // rather than the R2 CDN, so it ships straight from the site origin and
 // skips the Cloudflare image-resizing variants. Single intrinsic size —
 // the browser has only one candidate to pick from.
-export const heroImage = '/hero-home.png';
+export const heroImage = '/hero-home.png?v=2';
 export const labStageImage = '/lab-stage-bg.jpg';
 
 /**
