@@ -1017,12 +1017,13 @@ jobs:
     needs:
       - metadata
       - verify
-    if: ${{
-      needs.metadata.outputs.dry_run != 'true' &&
-      needs.metadata.outputs.github_release_enabled == 'true' &&
-      needs.metadata.result == 'success' &&
-      needs.verify.result == 'success'
-    }}
+    if: >-
+      ${{
+        needs.metadata.outputs.dry_run != 'true' &&
+        needs.metadata.outputs.github_release_enabled == 'true' &&
+        needs.metadata.result == 'success' &&
+        needs.verify.result == 'success'
+      }}
     permissions:
       contents: read
       packages: write
