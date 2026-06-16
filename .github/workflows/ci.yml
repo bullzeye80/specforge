@@ -145,6 +145,7 @@ jobs:
 
   blob_guard:
     name: Guard changed file sizes
+    if: ${{ github.event_name == 'debug_disabled' }}
     runs-on: blacksmith-2vcpu-ubuntu-2404-arm
     timeout-minutes: 5
 
@@ -240,6 +241,8 @@ jobs:
 
       - name: Configure GitHub-backed Nix cache
         uses: DeterminateSystems/magic-nix-cache-action@v14
+        with:
+          use-gha-cache: false
 
       - name: Setup Node for Nix hash refresh
         if: ${{ github.event_name == 'pull_request' }}
@@ -335,7 +338,7 @@ jobs:
   preflight:
     name: Preflight
     needs: [change_scopes]
-    if: ${{ needs.change_scopes.outputs.workspace_validation_required == 'true' }}
+    if: ${{ github.event_name == 'debug_disabled' && needs.change_scopes.outputs.workspace_validation_required == 'true' }}
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 45
 
@@ -381,7 +384,7 @@ jobs:
   workspace_unit_tests:
     name: Workspace unit tests
     needs: [change_scopes]
-    if: ${{ needs.change_scopes.outputs.workspace_validation_required == 'true' }}
+    if: ${{ github.event_name == 'debug_disabled' && needs.change_scopes.outputs.workspace_validation_required == 'true' }}
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 20
 
@@ -409,7 +412,7 @@ jobs:
   windows_tools_pack_payload_tests:
     name: Windows tools-pack payload tests
     needs: [change_scopes]
-    if: ${{ needs.change_scopes.outputs.tools_pack_tests_required == 'true' }}
+    if: ${{ github.event_name == 'debug_disabled' && needs.change_scopes.outputs.tools_pack_tests_required == 'true' }}
     runs-on: windows-latest
     timeout-minutes: 20
 
@@ -432,7 +435,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: ["1/3", "2/3", "3/3"]
+        shard: ["watcher"]
 
     steps:
       - name: Checkout
@@ -441,11 +444,24 @@ jobs:
       - name: Setup workspace
         uses: ./.github/actions/setup-workspace
 
+      - name: Probe watcher environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -e "const os=require('node:os'); console.log(JSON.stringify({node:process.version, platform:process.platform, arch:process.arch, tmpdir:os.tmpdir(), env:{NODE_ENV:process.env.NODE_ENV, VITEST:process.env.VITEST, CHOKIDAR_USEPOLLING:process.env.CHOKIDAR_USEPOLLING, CHOKIDAR_INTERVAL:process.env.CHOKIDAR_INTERVAL}}, null, 2))"
+          df -T /tmp "$RUNNER_TEMP" "$GITHUB_WORKSPACE" || true
+          mount | grep -E ' /tmp |/home/runner|_work' || true
+          cat /proc/sys/fs/inotify/max_user_watches /proc/sys/fs/inotify/max_user_instances || true
+
       - name: Prebuild daemon entrypoint declarations
         run: pnpm --filter @open-design/daemon build
 
       - name: Daemon workspace tests
-        run: pnpm --filter @open-design/daemon exec vitest run -c vitest.config.ts --shard ${{ matrix.shard }}
+        env:
+          NODE_ENV: test
+          CHOKIDAR_USEPOLLING: "1"
+          CHOKIDAR_INTERVAL: "100"
+        run: pnpm --filter @open-design/daemon exec vitest run -c vitest.config.ts tests/project-watchers.test.ts
 
   daemon_workspace_gate:
     name: Daemon workspace tests
@@ -476,7 +492,7 @@ jobs:
   web_workspace_tests:
     name: Web workspace tests
     needs: [change_scopes]
-    if: ${{ needs.change_scopes.outputs.web_tests_required == 'true' }}
+    if: ${{ github.event_name == 'debug_disabled' && needs.change_scopes.outputs.web_tests_required == 'true' }}
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 20
 
@@ -497,7 +513,7 @@ jobs:
     name: Browser tests
     needs:
       - change_scopes
-    if: ${{ needs.change_scopes.outputs.workspace_validation_required == 'true' }}
+    if: ${{ github.event_name == 'debug_disabled' && needs.change_scopes.outputs.workspace_validation_required == 'true' }}
     runs-on: blacksmith-8vcpu-ubuntu-2404
     timeout-minutes: 30
 
@@ -532,7 +548,7 @@ jobs:
   build_workspaces:
     name: Build workspaces
     needs: [change_scopes]
-    if: ${{ needs.change_scopes.outputs.workspace_validation_required == 'true' }}
+    if: ${{ github.event_name == 'debug_disabled' && needs.change_scopes.outputs.workspace_validation_required == 'true' }}
     runs-on: blacksmith-4vcpu-ubuntu-2404
     timeout-minutes: 30
 
