@@ -1417,6 +1417,13 @@ function OnboardingView({
     void onConfigPersist(nextConfig);
   }
 
+  function selectFirstProviderModelWhenEmpty(models: readonly ProviderModelOption[]) {
+    const firstModel = models[0];
+    if (!firstModel || config.model.trim()) return;
+    onApiModelChange(firstModel.id);
+    updateApiConfig({ model: firstModel.id });
+  }
+
   function clearAgentRevealTimers() {
     agentRevealTimersRef.current.forEach((timer) => clearTimeout(timer));
     agentRevealTimersRef.current = [];
@@ -1781,6 +1788,7 @@ function OnboardingView({
     providerModelsAutoFetchKeyRef.current = inputKey;
     const cachedModels = activeProviderModelsCache[inputKey];
     if (cachedModels) {
+      selectFirstProviderModelWhenEmpty(cachedModels);
       setProviderModelsState({
         status: 'done',
         inputKey,
@@ -1801,11 +1809,7 @@ function OnboardingView({
         apiKey: config.apiKey,
       });
       if (result.ok && result.models?.length) {
-        const firstModel = result.models[0];
-        if (firstModel && !config.model.trim()) {
-          onApiModelChange(firstModel.id);
-          updateApiConfig({ model: firstModel.id });
-        }
+        selectFirstProviderModelWhenEmpty(result.models);
         activeSetProviderModelsCache((current) => ({
           ...current,
           [inputKey]: result.models ?? [],
