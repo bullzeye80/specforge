@@ -577,12 +577,24 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-  visual_pr:
-    name: Strict PR visual tests
+  playwright_visual:
+    name: Playwright visual (${{ matrix.name }})
     needs: [change_scopes]
     if: ${{ github.event_name == 'pull_request' && needs.change_scopes.outputs.visual_validation_required == 'true' && !github.event.pull_request.draft }}
     runs-on: blacksmith-8vcpu-ubuntu-2404
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: entry
+            files: ui/visual-entry.test.ts
+          - name: navigation
+            files: ui/visual-navigation.test.ts
+          - name: settings
+            files: ui/visual-settings.test.ts
+          - name: workspace
+            files: ui/visual-workspace.test.ts
 
     steps:
       - name: Checkout
@@ -590,17 +602,31 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Prepare visual screenshot environment
-        uses: ./.github/actions/visual-screenshot
+      - name: Setup workspace
+        uses: ./.github/actions/setup-workspace
+
+      - name: Setup Playwright
+        uses: ./.github/actions/setup-playwright
+        with:
+          package-json-path: e2e/package.json
+          install-command: pnpm -C e2e exec playwright install --with-deps chromium
+
+      - name: Prebuild workspace type declarations
+        run: |
+          pnpm --filter @open-design/daemon build
+          pnpm --filter @open-design/desktop build
+          pnpm --filter @open-design/web build:sidecar
 
       - name: Run strict visual Playwright suite
         id: visual
         continue-on-error: true
         env:
           OD_VISUAL_OUTPUT_DIR: ui/reports/visual-screenshots
+          OD_PLAYWRIGHT_WORKERS: "4"
+          OD_PLAYWRIGHT_FULLY_PARALLEL: "1"
         run: |
           pnpm -C e2e exec tsx scripts/playwright.ts clean
-          pnpm -C e2e exec playwright test -c playwright.visual.config.ts
+          pnpm -C e2e exec playwright test -c playwright.visual.config.ts ${{ matrix.files }}
 
       - name: Write capture manifest
         if: ${{ always() }}
@@ -612,6 +638,7 @@ jobs:
             "head_sha": "${{ github.event.pull_request.head.sha }}",
             "base_sha": "${{ github.event.pull_request.base.sha }}",
             "run_id": "${{ github.run_id }}",
+            "group": "${{ matrix.name }}",
             "capture_outcome": "${{ steps.visual.outcome }}"
           }
           JSON
@@ -620,7 +647,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v7
         with:
-          name: visual-pr-capture-${{ github.event.pull_request.number }}-${{ github.run_id }}
+          name: visual-pr-capture-${{ github.event.pull_request.number }}-${{ github.run_id }}-${{ matrix.name }}
           path: |
             e2e/ui/reports/visual-screenshots
             e2e/ui/reports/visual-results.json
@@ -682,7 +709,7 @@ jobs:
       - playwright_critical
       - ui_p0_smoke
       - ui_p0
-      - visual_pr
+      - playwright_visual
       - docker_pr
     if: ${{ always() }}
     runs-on: blacksmith-2vcpu-ubuntu-2404-arm

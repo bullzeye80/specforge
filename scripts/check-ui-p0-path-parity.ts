@@ -82,7 +82,7 @@ function checkScopeRules(source: string): string[] {
 }
 
 function extractCiMatrixShards(source: string): string[] {
-  const jobMatch = source.match(/\n  ui_p0:\n(?<body>[\s\S]+?)\n\n  visual_pr:/u);
+  const jobMatch = source.match(/\n  ui_p0:\n(?<body>[\s\S]+?)\n\n  playwright_visual:/u);
   const body = jobMatch?.groups?.body;
   if (!body) throw new Error(`Unable to find ui_p0 job in ${ciWorkflowPath}.`);
   return [...body.matchAll(/^\s+shard:\s+([a-z0-9-]+)\s*$/gmu)]

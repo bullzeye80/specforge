@@ -214,10 +214,11 @@ function isVisualRelevantFile(file: string): boolean {
   return (
     startsWithAny(file, [
       "apps/web/",
-      ".github/actions/visual-screenshot/",
       "e2e/lib/playwright/",
-      "e2e/ui/",
+      ".github/actions/setup-playwright/",
+      ".github/actions/setup-workspace/",
     ]) ||
+    /^e2e\/ui\/visual-[^/]+\.test\.ts$/.test(file) ||
     [
       "e2e/package.json",
       "e2e/playwright.visual.config.ts",
