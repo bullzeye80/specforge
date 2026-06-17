@@ -14,18 +14,18 @@ import {
   inferLegacyManifest,
   parsePersistedManifest,
   validateArtifactManifestInput,
-} from './artifact-manifest.js';
+} from './artifacts/artifact-manifest.js';
 import {
   ArtifactRegressionError,
   STUB_GUARDED_MANIFEST_KINDS,
   evaluateArtifactStubGuard,
   readArtifactStubGuardConfigFromEnv,
-} from './artifact-stub-guard.js';
+} from './artifacts/artifact-stub-guard.js';
 import {
   assertArtifactPublicationAllowed,
   isPublicationGuardedArtifactKind,
-} from './artifact-publication-guard.js';
-import { normalizeArtifactRuntimeImports } from './artifact-runtime-compat.js';
+} from './artifacts/artifact-publication-guard.js';
+import { normalizeArtifactRuntimeImports } from './artifacts/artifact-runtime-compat.js';
 import { isIgnoredProjectDirName } from './project-ignored-dirs.js';
 import {
   isSandboxImportedProjectRootAllowed,

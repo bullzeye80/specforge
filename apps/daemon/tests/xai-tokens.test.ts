@@ -18,7 +18,7 @@ import {
   sanitizeTokensFile,
   setXAIToken,
   type StoredXAIToken,
-} from '../src/xai-tokens.js';
+} from '../src/integrations/xai-tokens.js';
 
 const isPosix = process.platform !== 'win32';
 

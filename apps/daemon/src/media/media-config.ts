@@ -39,9 +39,9 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { MEDIA_PROVIDERS } from './media-models.js';
-import { expandHomePrefix } from './home-expansion.js';
-import { resolveXAIBearer } from './xai-credentials.js';
-import { isSandboxModeEnabled } from './sandbox-mode.js';
+import { expandHomePrefix } from '../home-expansion.js';
+import { resolveXAIBearer } from '../integrations/xai-credentials.js';
+import { isSandboxModeEnabled } from '../sandbox-mode.js';
 
 const PROVIDER_IDS = MEDIA_PROVIDERS.map((p) => p.id);
 type ProviderEntry = { apiKey?: string; baseUrl?: string; model?: string };

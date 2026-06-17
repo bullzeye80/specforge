@@ -147,7 +147,7 @@ import {
   createPluginAssetCache,
   isCacheableExternalUrl,
 } from './plugin-asset-cache.js';
-import { defaultMediaExecutionPolicy, parseMediaExecutionPolicyInput } from './media-policy.js';
+import { defaultMediaExecutionPolicy, parseMediaExecutionPolicyInput } from './media/media-policy.js';
 import {
   applySandboxRuntimeEnv,
   ensureSandboxRuntimeDirs,
@@ -168,9 +168,9 @@ import {
   resolveDesignSystemAssets,
   updateUserDesignSystem,
   updateUserDesignSystemRevisionStatus,
-} from './design-systems.js';
-import { createDesignSystemGenerationJobStore } from './design-system-generation-jobs.js';
-import { prepareDesignTokenContractRebuild } from './design-token-contract-rebuild.js';
+} from './design-systems/design-systems.js';
+import { createDesignSystemGenerationJobStore } from './design-systems/design-system-generation-jobs.js';
+import { prepareDesignTokenContractRebuild } from './design-systems/design-token-contract-rebuild.js';
 import {
   applyDiffReviewDecisionToCwd,
   applyPlugin,
@@ -211,9 +211,9 @@ import {
 import { composeMemoryBody, extractFromMessage } from './memory.js';
 import { attachAcpSession } from './acp.js';
 import { attachPiRpcSession } from './pi-rpc.js';
-import { stageAmrImagePaths } from './amr-image-staging.js';
+import { stageAmrImagePaths } from './media/amr-image-staging.js';
 import { ingestRoutineConnectorEvolution } from './automation-routine-evolution.js';
-import { createClaudeStreamHandler } from './claude-stream.js';
+import { createClaudeStreamHandler } from './runtimes/claude-stream.js';
 import { createAgentTitleMarkerStripper } from './title-marker.js';
 import { createRoleMarkerGuard } from './role-marker-guard.js';
 import { diagnoseClaudeCliFailure } from './claude-diagnostics.js';
@@ -234,7 +234,7 @@ import {
 } from './critique/rollout.js';
 import { narrowProjectCritiqueOverride } from './critique/spawn-inputs.js';
 import { createCopilotStreamHandler } from './copilot-stream.js';
-import { createJsonEventStreamHandler } from './json-event-stream.js';
+import { createJsonEventStreamHandler } from './runtimes/json-event-stream.js';
 import {
   antigravityAuthGuidance,
   antigravityQuotaGuidance,
@@ -244,11 +244,11 @@ import {
 } from './runtimes/auth.js';
 import { readOpenCodeServiceFailure } from './runtimes/opencode-log.js';
 import { createAgentStderrVisibilityFilter } from './amr-stderr-filter.js';
-import { createQoderStreamHandler } from './qoder-stream.js';
+import { createQoderStreamHandler } from './runtimes/qoder-stream.js';
 import { subscribe as subscribeFileEvents } from './project-watchers.js';
-import { renderDesignSystemPreview } from './design-system-preview.js';
-import { renderDesignSystemShowcase } from './design-system-showcase.js';
-import { createChatRunService } from './runs.js';
+import { renderDesignSystemPreview } from './design-systems/design-system-preview.js';
+import { renderDesignSystemShowcase } from './design-systems/design-system-showcase.js';
+import { createChatRunService } from './runtimes/runs.js';
 import { deriveRunErrorCode, runResultFromStatus } from './run-result.js';
 import { classifyRunFailure, isResumableFailure } from './run-failure-classification.js';
 import { decideSafeRunRetry } from './run-retry-policy.js';
@@ -265,7 +265,7 @@ import {
   deriveActivationMilestones,
   didRunCreateDesignSystemFile,
   runAskedUserQuestion,
-} from './run-artifacts.js';
+} from './runtimes/run-artifacts.js';
 import {
   reportRunCompletedFromDaemon,
   reportRunFeedbackFromDaemon,
@@ -298,7 +298,7 @@ import {
   validateBaseUrl,
   validateBaseUrlResolved,
 } from './connectionTest.js';
-import { listProviderModels } from './providerModels.js';
+import { listProviderModels } from './integrations/provider-models.js';
 import { importClaudeDesignZip } from './claude-design-import.js';
 import {
   defaultBaseUrlForFinalizeProtocol,
@@ -312,8 +312,8 @@ import { lintArtifact, renderFindingsForAgent } from './lint-artifact.js';
 import { loadCraftSections } from './craft.js';
 import { skillCwdAliasSegment, stageActiveSkill } from './cwd-aliases.js';
 import { buildDesktopPdfExportInput } from './pdf-export.js';
-import { generateMedia } from './media.js';
-import { listElevenLabsVoiceOptions } from './elevenlabs-voices.js';
+import { generateMedia } from './media/media.js';
+import { listElevenLabsVoiceOptions } from './integrations/elevenlabs-voices.js';
 import { searchResearch, ResearchError } from './research/index.js';
 import { renderResearchCommandContract } from './prompts/research-contract.js';
 import { openBrowser } from './browser-open.js';
@@ -325,8 +325,8 @@ import {
   MEDIA_PROVIDERS,
   VIDEO_LENGTHS_SEC,
   VIDEO_MODELS,
-} from './media-models.js';
-import { readMaskedConfig, writeConfig } from './media-config.js';
+} from './media/media-models.js';
+import { readMaskedConfig, writeConfig } from './media/media-config.js';
 import {
   deleteMediaTask,
   getMediaTask,
@@ -335,7 +335,7 @@ import {
   listRecentMediaTasks,
   reconcileMediaTasksOnBoot,
   updateMediaTask,
-} from './media-tasks.js';
+} from './media/media-tasks.js';
 import {
   MCP_TEMPLATES,
   buildAcpMcpServers,
@@ -404,8 +404,8 @@ import {
   writeProjectFile,
   reconcileHtmlArtifactManifest,
 } from './projects.js';
-import { validateArtifactManifestInput } from './artifact-manifest.js';
-import { ArtifactPublicationBlockedError } from './artifact-publication-guard.js';
+import { validateArtifactManifestInput } from './artifacts/artifact-manifest.js';
+import { ArtifactPublicationBlockedError } from './artifacts/artifact-publication-guard.js';
 import { readCurrentAppVersionInfo } from './app-version.js';
 import {
   appendMessageAgentEvent,
@@ -500,10 +500,10 @@ import { registerFinalizeRoutes, registerImportRoutes, registerProjectExportRout
 import { registerHandoffRoutes } from './routes/handoff.js';
 import { EmptyTranscriptError, synthesizeHandoffPrompt } from './handoff-design.js';
 import { TranscriptExportLockedError } from './transcript-export.js';
-import { registerChatRoutes } from './chat-routes.js';
-import { registerTerminalRoutes } from './terminal-routes.js';
+import { registerChatRoutes } from './routes/chat.js';
+import { registerTerminalRoutes } from './routes/terminal.js';
 import { createTerminalService } from './terminals.js';
-import { registerSocialShareRoutes } from './social-share-routes.js';
+import { registerSocialShareRoutes } from './routes/social-share.js';
 import { registerMemoryRoutes } from './routes/memory.js';
 import { registerAtomRoutes, registerStaticResourceRoutes } from './routes/static-resource.js';
 import { registerRoutineRoutes, routineDbRowToContract } from './routes/routine.js';

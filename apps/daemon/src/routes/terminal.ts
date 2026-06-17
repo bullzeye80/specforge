@@ -1,6 +1,6 @@
 import type { Express } from 'express';
-import type { RouteDeps } from './server-context.js';
-import type { createTerminalService } from './terminals.js';
+import type { RouteDeps } from '../server-context.js';
+import type { createTerminalService } from '../terminals.js';
 
 export interface RegisterTerminalRoutesDeps
   extends RouteDeps<'db' | 'http' | 'paths' | 'projectStore' | 'projectFiles'> {

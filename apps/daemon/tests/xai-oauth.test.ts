@@ -13,7 +13,7 @@ import {
   completeXAIAuth,
   refreshXAIToken,
   xaiRedirectUri,
-} from '../src/xai-oauth.js';
+} from '../src/integrations/xai-oauth.js';
 
 type FetchInput = Parameters<typeof fetch>[0];
 type FetchInit = Parameters<typeof fetch>[1];

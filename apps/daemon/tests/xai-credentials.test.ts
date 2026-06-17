@@ -3,8 +3,8 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { resolveXAIBearer } from '../src/xai-credentials.js';
-import { setXAIToken, type StoredXAIToken } from '../src/xai-tokens.js';
+import { resolveXAIBearer } from '../src/integrations/xai-credentials.js';
+import { setXAIToken, type StoredXAIToken } from '../src/integrations/xai-tokens.js';
 
 type FetchInput = Parameters<typeof fetch>[0];
 type FetchInit = Parameters<typeof fetch>[1];

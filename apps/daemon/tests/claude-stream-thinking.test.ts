@@ -14,7 +14,7 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { createClaudeStreamHandler } from '../src/claude-stream.js';
+import { createClaudeStreamHandler } from '../src/runtimes/claude-stream.js';
 
 type Event = Record<string, unknown>;
 

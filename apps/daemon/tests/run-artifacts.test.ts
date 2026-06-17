@@ -23,7 +23,7 @@ import {
   deriveActivationMilestones,
   didRunCreateDesignSystemFile,
   runAskedUserQuestion,
-} from '../src/run-artifacts.js';
+} from '../src/runtimes/run-artifacts.js';
 
 let nextId = 0;
 function freshId(prefix = 'tool'): string {

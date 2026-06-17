@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createClaudeStreamHandler } from '../src/claude-stream.js';
+import { createClaudeStreamHandler } from '../src/runtimes/claude-stream.js';
 import { createCopilotStreamHandler } from '../src/copilot-stream.js';
 import { mapPiRpcEvent } from '../src/pi-rpc.js';
 

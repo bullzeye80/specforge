@@ -43,7 +43,7 @@ const {
   };
 });
 
-vi.mock('../src/xai-oauth-server.js', () => ({
+vi.mock('../src/integrations/xai-oauth-server.js', () => ({
   XAI_CALLBACK_HOST: '127.0.0.1',
   XAI_CALLBACK_PORT: 56121,
   XAI_CALLBACK_PATH: '/callback',
@@ -62,7 +62,7 @@ import {
 import {
   XAI_OAUTH_AUTHORIZATION_ENDPOINT,
   XAI_OAUTH_TOKEN_ENDPOINT,
-} from '../src/xai-oauth.js';
+} from '../src/integrations/xai-oauth.js';
 
 interface TestApp {
   baseUrl: string;

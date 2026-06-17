@@ -2,12 +2,12 @@
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { normalizeMediaExecutionPolicyForRun } from './media-policy.js';
+import { normalizeMediaExecutionPolicyForRun } from '../media/media-policy.js';
 import {
   normalizeRunToolBundleForRun,
   summarizeRunToolBundle,
-} from './run-tool-bundle.js';
-import { projectWorkspaceProvenance } from './workspace-contract.js';
+} from '../run-tool-bundle.js';
+import { projectWorkspaceProvenance } from '../workspace-contract.js';
 
 export const TERMINAL_RUN_STATUSES = new Set(['succeeded', 'failed', 'canceled']);
 

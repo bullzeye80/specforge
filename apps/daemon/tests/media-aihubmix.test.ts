@@ -16,7 +16,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { generateMedia } from '../src/media.js';
+import { generateMedia } from '../src/media/media.js';
 import {
   AIHUBMIX_APP_CODE,
   AIHUBMIX_DEFAULT_BASE_URL,
@@ -24,7 +24,7 @@ import {
   aihubmixWireModel,
   aihubmixCatalogUrl,
   parseAIHubMixCatalog,
-} from '../src/aihubmix.js';
+} from '../src/integrations/aihubmix.js';
 
 // 1×1 transparent PNG.
 const FAKE_PNG = Buffer.from(

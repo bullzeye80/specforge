@@ -9,7 +9,7 @@ import {
   migrateMediaTasks,
   reconcileMediaTasksOnBoot,
   updateMediaTask,
-} from '../src/media-tasks.js';
+} from '../src/media/media-tasks.js';
 
 function freshDb(): Database.Database {
   const db = new Database(':memory:');

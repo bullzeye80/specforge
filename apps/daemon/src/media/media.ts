@@ -64,17 +64,17 @@ import {
   findProvider,
   modelsForSurface,
 } from './media-models.js';
-import { assertAndFetchExternalAsset } from './connectionTest.js';
+import { assertAndFetchExternalAsset } from '../connectionTest.js';
 import { resolveModelAlias, resolveProviderConfig } from './media-config.js';
-import { codexNeedsDangerFullAccessSandbox } from './runtimes/defs/codex.js';
-import { spawnEnvForAgent } from './agents.js';
-import { agentCliEnvForAgent, appConfigDir, readAppConfig } from './app-config.js';
+import { codexNeedsDangerFullAccessSandbox } from '../runtimes/defs/codex.js';
+import { spawnEnvForAgent } from '../agents.js';
+import { agentCliEnvForAgent, appConfigDir, readAppConfig } from '../app-config.js';
 import {
   ensureProject,
   kindFor,
   mimeFor,
   sanitizeName,
-} from './projects.js';
+} from '../projects.js';
 import {
   AIHUBMIX_DEFAULT_BASE_URL,
   aihubmixHeaders,
@@ -82,7 +82,7 @@ import {
   aihubmixVideoSeconds,
   aihubmixGeminiImageBytes,
   classifyAIHubMixModel,
-} from './aihubmix.js';
+} from '../integrations/aihubmix.js';
 
 const execFile = promisify(execFileCb);
 type ProviderConfig = { apiKey?: string; baseUrl?: string; model?: string };

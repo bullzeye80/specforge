@@ -4,7 +4,7 @@ import {
   startCallbackListener,
   type CallbackListener,
   type CallbackOutcome,
-} from '../src/xai-oauth-server.js';
+} from '../src/integrations/xai-oauth-server.js';
 
 // Use port 0 in tests so the OS picks a free ephemeral port — avoids
 // collisions with a real Hermes / OD OAuth flow that may already own

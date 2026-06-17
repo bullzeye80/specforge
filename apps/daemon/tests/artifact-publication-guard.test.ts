@@ -7,7 +7,7 @@ import {
   findUnresolvedArtifactPlaceholders,
   isPublicationGuardedArtifactKind,
   shouldBlockArtifactPublication,
-} from '../src/artifact-publication-guard.js';
+} from '../src/artifacts/artifact-publication-guard.js';
 import { listFiles, writeProjectFile } from '../src/projects.js';
 
 const deckManifest = {

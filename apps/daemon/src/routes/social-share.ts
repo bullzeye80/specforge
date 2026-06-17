@@ -4,7 +4,7 @@ import {
   normalizeSocialShareUrl,
   type SocialShareRequest,
 } from '@open-design/contracts';
-import type { RouteDeps } from './server-context.js';
+import type { RouteDeps } from '../server-context.js';
 
 export interface RegisterSocialShareRoutesDeps extends RouteDeps<'http'> {}
 

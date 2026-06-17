@@ -1,12 +1,12 @@
 import type { Express } from 'express';
-import type { RouteDeps } from './server-context.js';
-import { seedProviderIfMissing } from './media-config.js';
+import type { RouteDeps } from '../server-context.js';
+import { seedProviderIfMissing } from '../media/media-config.js';
 import {
   buildLegacyMaxTokensParam,
   buildMaxCompletionTokensParam,
   buildOpenAIChatTokenParam,
   isUnsupportedMaxTokensError,
-} from './openai-chat-token-params.js';
+} from '../integrations/openai-chat-token-params.js';
 import {
   BYOK_SENSEAUDIO_TOOLS,
   BYOK_AIHUBMIX_TOOLS,
@@ -22,19 +22,19 @@ import {
   isAIHubMixSpeechModel,
   type BYOKToolContext,
   type ImageToolResult,
-} from './byok-tools.js';
+} from '../byok-tools.js';
 import {
   AIHUBMIX_DEFAULT_BASE_URL,
   aihubmixHeaders,
   aihubmixAppCodeHeader,
   aihubmixOriginFromBase,
   classifyAIHubMixModel,
-} from './aihubmix.js';
-import { isSafeId as isSafeProjectId } from './projects.js';
+} from '../integrations/aihubmix.js';
+import { isSafeId as isSafeProjectId } from '../projects.js';
 import { projectKindToTracking } from '@open-design/contracts/analytics';
-import { proxyDispatcherRequestInit, validateBaseUrlResolved } from './connectionTest.js';
-import { googleStreamGenerateContentUrl } from './google-models.js';
-import { createRoleMarkerGuard } from './role-marker-guard.js';
+import { proxyDispatcherRequestInit, validateBaseUrlResolved } from '../connectionTest.js';
+import { googleStreamGenerateContentUrl } from '../integrations/google-models.js';
+import { createRoleMarkerGuard } from '../role-marker-guard.js';
 
 // Allowlist for the `/feedback` route. Mirrors the
 // ChatMessageFeedbackReasonCode union in packages/contracts/src/api/chat.ts.

@@ -19,7 +19,7 @@ import {
   type DesignExtractReport,
   type DesignTokenEntry,
   type DesignTokenKind,
-} from '../../design-token-evidence.js';
+} from '../../design-systems/design-token-evidence.js';
 
 export type {
   DesignExtractReport,
