@@ -51,12 +51,13 @@ When touching a legacy top-level file:
 
 Suggested ownership for common legacy top-level families:
 
-- `chat-routes.ts`, `project-routes.ts`, `import-export-routes.ts`, `mcp-routes.ts`, `terminal-routes.ts`, `social-share-routes.ts` -> `src/routes/`.
-- `claude-stream.ts`, `copilot-stream.ts`, `qoder-stream.ts`, `json-event-stream.ts`, `acp.ts`, `agents.ts`, `runs.ts`, `run-*`, `agent-*`, `*-diagnostics.ts` -> usually `src/runtimes/` or a future `src/runs/` folder, depending on ownership.
-- `media.ts`, `media-config.ts`, `media-models.ts`, `media-policy.ts`, `media-tasks.ts`, `elevenlabs-voices.ts`, `aihubmix.ts`, `google-models.ts`, `providerModels.ts` -> `src/media/` or `src/integrations/` when doing a focused media reorganization.
-- `design-system-*`, `design-systems.ts`, `design-token-*`, `swift-colors.ts`, `frontmatter.ts` when used only there -> a future `src/design-systems/` folder.
-- `artifact-*`, `inline-assets.ts`, `lint-artifact.ts`, `pdf-export.ts`, `document-preview.ts`, `static-spa.ts` -> a future `src/artifacts/` folder or existing artifact owner if one is introduced.
+- `project-routes.ts`, `import-export-routes.ts`, `mcp-routes.ts` -> `src/routes/`. (Route modules already split out, such as `routes/chat.ts`, `routes/terminal.ts`, and `routes/social-share.ts`, are done; do not list them here.)
+- `copilot-stream.ts`, `acp.ts`, `agents.ts`, `run-*`, `agent-*`, `*-diagnostics.ts` -> usually `src/runtimes/` or a future `src/runs/` folder, depending on ownership. (`claude-stream.ts`, `qoder-stream.ts`, `json-event-stream.ts`, and `runs.ts` already live under `src/runtimes/`.)
+- `design-systems-cli-help.ts`, `tools-design-systems-cli.ts`, `claude-design-import.ts` when used only there -> `src/design-systems/`. (Core design-system modules, design tokens, `swift-colors.ts`, and `frontmatter.ts` are already under `src/design-systems/`.)
+- `inline-assets.ts`, `lint-artifact.ts`, `pdf-export.ts`, `document-preview.ts`, `static-spa.ts` -> `src/artifacts/` or the existing artifact owner. (The `artifact-*` family already moved under `src/artifacts/`.)
 - `memory*.ts`, `orbit*.ts`, `automation-*.ts`, `routines.ts`, `prompt-*`, `handoff-*`, `finalize-design.ts` -> keep with their domain; introduce folders when touching multiple related files.
+
+The `media-*` family has already moved into `src/media/`; no media modules remain at the top level.
 
 These are migration targets, not permission to do a large cleanup PR. Move only what helps the current change or removes active ambiguity.
 
@@ -109,7 +110,7 @@ When adding a user-facing capability, close the loop in one change: contract typ
 - Parser changes belong beside the matching runtime stream helper and should include focused parser tests.
 - Runtime definition changes belong in `src/runtimes/defs/`.
 - For agent-stream/parser changes, replay a mock CLI trace from `mocks/` when practical instead of burning provider budget.
-- Preserve Claude stream-json bookkeeping in `src/claude-stream.ts` and `src/server.ts`; do not close stdin on `tool_use` stop reasons.
+- Preserve Claude stream-json bookkeeping in `src/runtimes/claude-stream.ts` and `src/server.ts`; do not close stdin on `tool_use` stop reasons.
 
 ## Tests
 
