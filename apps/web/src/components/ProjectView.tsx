@@ -6574,6 +6574,7 @@ function shouldReplayTerminalRunMessage(message: ChatMessage): boolean {
   if (!message.runId) return false;
   if (message.runStatus !== 'succeeded') return false;
   if (message.content.trim().length > 0) return false;
+  if (message.startedAt == null && !message.preTurnFileNames?.length) return false;
   return !(message.producedFiles?.length);
 }
 
