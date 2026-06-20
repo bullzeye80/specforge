@@ -13,7 +13,9 @@ import type { RegisterMediaRoutesDeps } from './routes/media.js';
 import type { RegisterMemoryRoutesDeps } from './routes/memory.js';
 import type { RegisterProjectArtifactRoutesDeps, RegisterProjectFileRoutesDeps, RegisterProjectRoutesDeps, RegisterProjectUploadRoutesDeps } from './project-routes.js';
 import type { RegisterRoutineRoutesDeps } from './routes/routine.js';
+import type { RegisterSocialShareRoutesDeps } from './routes/social-share.js';
 import type { RegisterStaticResourceRoutesDeps } from './routes/static-resource.js';
+import type { RegisterTerminalRoutesDeps } from './routes/terminal.js';
 import type { RegisterVelaRoutesDeps } from './routes/vela.js';
 import type { RegisterXaiRoutesDeps } from './routes/xai.js';
 
@@ -38,7 +40,9 @@ type AllRegisteredRouteDeps =
   & RegisterProjectRoutesDeps
   & RegisterProjectUploadRoutesDeps
   & RegisterRoutineRoutesDeps
+  & RegisterSocialShareRoutesDeps
   & RegisterStaticResourceRoutesDeps
+  & RegisterTerminalRoutesDeps
   & RegisterVelaRoutesDeps
   & RegisterXaiRoutesDeps;
 
