@@ -83,6 +83,29 @@ const canonical = new URL(props.pathname, Astro.site).toString();
 const image = props.image ?? new URL(ogDefaultImage, Astro.site).toString();
 const rssUrl = new URL('/blog/rss.xml', Astro.site).toString();
 
+/*
+ * Clamp the meta / OpenGraph / Twitter description to a search-friendly
+ * length. Google truncates snippets around 155–160 chars and social cards
+ * around 200; shipping a 250–270 char description just gets cut mid-sentence
+ * in the SERP and trips "description too long" audits. We trim at a word
+ * boundary (when one exists — CJK has none, so it hard-cuts) and append an
+ * ellipsis so the tag stays a clean phrase. Source strings are untouched, so
+ * this fix covers every page and every locale from one place.
+ */
+const META_DESCRIPTION_MAX = 160;
+function clampDescription(text: string, max = META_DESCRIPTION_MAX): string {
+  const trimmed = text.trim();
+  if (trimmed.length <= max) return trimmed;
+  const slice = trimmed.slice(0, max - 1);
+  const lastSpace = slice.lastIndexOf(' ');
+  const base = (lastSpace > max * 0.6 ? slice.slice(0, lastSpace) : slice).replace(
+    /[\s,.;:—–-]+$/u,
+    '',
+  );
+  return `${base}…`;
+}
+const metaDescription = clampDescription(props.description);
+
 const fullTitle = isArticle ? `${props.title} — ${SITE_NAME}` : props.title;
 const ogTitle = props.title;
 
@@ -159,7 +182,7 @@ const blogJsonLd =
 ---
 
 <title>{fullTitle}</title>
-<meta name='description' content={props.description} />
+<meta name='description' content={metaDescription} />
 <meta name='theme-color' content='#efe7d2' />
 {noindex && <meta name='robots' content='noindex, nofollow' />}
 <link rel='canonical' href={canonical} />
@@ -178,7 +201,7 @@ const blogJsonLd =
 <meta property='og:type' content={props.kind === 'article' ? 'article' : 'website'} />
 <meta property='og:site_name' content={SITE_NAME} />
 <meta property='og:title' content={ogTitle} />
-<meta property='og:description' content={props.description} />
+<meta property='og:description' content={metaDescription} />
 <meta property='og:url' content={canonical} />
 <meta property='og:image' content={image} />
 <meta property='og:locale' content={localeDef.ogLocale} />
@@ -197,7 +220,7 @@ const blogJsonLd =
 
 <meta name='twitter:card' content='summary_large_image' />
 <meta name='twitter:title' content={ogTitle} />
-<meta name='twitter:description' content={props.description} />
+<meta name='twitter:description' content={metaDescription} />
 <meta name='twitter:image' content={image} />
 
 {articleJsonLd && (
