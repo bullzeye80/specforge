@@ -1,0 +1,15 @@
+{
+  "_note": "Operator overlay — per-project allowed commands, merged onto the locked base profile then locked. The agent CANNOT edit this; only you can. Deny always wins. This project uses pnpm (not npm), activated via corepack; the base profile only allows npm read-only, so pnpm must be allowed here.",
+  "permissions": {
+    "allow": [
+      "Bash(corepack *)",
+      "Bash(pnpm install)",
+      "Bash(pnpm lint:craft)",
+      "Bash(pnpm guard)",
+      "Bash(pnpm typecheck)",
+      "Bash(pnpm run *)",
+      "Bash(pnpm --filter *)"
+    ],
+    "deny": []
+  }
+}
