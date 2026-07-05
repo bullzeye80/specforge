@@ -148,7 +148,7 @@ od:
 
 | Skill | Status |
 |---|---|
-| `skills/plg-shape/` | **v0 authored** (specbox task 08) — produces `product.md` only; discovery via `<question-form>`, no HTML preview. Grow to journey/sitemap/nav-model/domain-map next. Not yet run end-to-end. |
+| `skills/plg-shape/` | **v1 authored** — produces `product.md` (task 08, dogfooded end-to-end ✓) + `journey.md` (task 09, First Strike/KUI/PAI). Discovery via `<question-form>`, no HTML preview. Grow to sitemap/nav-model/domain-map next. journey.md not yet run end-to-end. |
 | `skills/plg-flow/` | TBD |
 | `skills/plg-critique/` | TBD (OD's generic `design-templates/critique/` is the model; ours adds the 7 PLG checks) |
 | `skills/plg-build/` | Phase 2 |
