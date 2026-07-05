@@ -162,7 +162,12 @@ od:
 | `specs/design/_shared/product.md` | specforge's own — dogfooded via plg-shape (interactive) | **Authored** |
 | `specs/design/_shared/journey.md` | specforge's own — dogfooded via plg-shape (First Strike/KUI/PAI) | **Authored** |
 | `specs/design/_shared/domain-map.json` | specforge's own — dogfooded via plg-shape (3 contexts, §6.5-clean) | **Authored** |
-| `specs/design/_shared/` (sitemap, nav-model, per-feature shape) | Remaining dogfood chain | TBD |
+| `specs/design/_shared/sitemap.json` | specforge's own — 12 nodes, all refs resolve to domain-map | **Authored** |
+| `specs/design/_shared/nav-model.md` | specforge's own — nav model over the sitemap | **Authored** |
+| `specs/design/features/*/shape.md` | specforge's own — 8 feature shapes (§7.1), stages trace to journey | **Authored** |
+
+**plg-shape's full artifact chain is dogfooded end-to-end on specforge itself** — the complete
+product-scope spec (`_shared/` + 8 `features/*/shape.md`) exists and is cross-referentially valid.
 
 ### Documentation additions
 
