@@ -1,0 +1,583 @@
+{
+  "version": "2",
+  "bounded-contexts": [
+    {
+      "id": "context:shaping",
+      "label": "Shaping",
+      "purpose": "The user-facing core: turning a fuzzy idea into a structured spec-artifact tree. Where First Strike, PAI, and KUI all fire.",
+      "objects": [
+        {
+          "id": "object:shaping.product",
+          "label": "Product",
+          "purpose": "A product idea being specced — the top-level container for one artifact tree.",
+          "kind": "entity",
+          "aggregate": "object:shaping.product",
+          "attributes": [
+            { "name": "name", "type": "string", "required": true, "shown-on-list": true },
+            { "name": "slug", "type": "string", "required": true, "shown-on-list": false },
+            { "name": "depth", "type": "enum", "values": ["skeleton", "refined", "full-tree"], "required": true, "shown-on-list": true },
+            { "name": "status", "type": "enum", "values": ["active", "archived"], "required": true, "shown-on-list": true },
+            { "name": "owner", "type": "ref", "to": "object:identity.user", "required": true, "shown-on-list": false }
+          ],
+          "actions": [
+            {
+              "id": "action:shaping.product.create",
+              "label": "Create",
+              "kind": "command",
+              "actor": "user",
+              "result": "creates new object:shaping.product from an object:shaping.idea-seed",
+              "destructive": false,
+              "confirmation-required": false,
+              "cancellable": true,
+              "undoable": false,
+              "feedback-on-success": "redirect-to-anchor-result",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:shaping.product-created"]
+            },
+            {
+              "id": "action:shaping.product.rename",
+              "label": "Rename",
+              "kind": "command",
+              "actor": "owner",
+              "result": "name -> new value",
+              "destructive": false,
+              "confirmation-required": false,
+              "cancellable": true,
+              "undoable": true,
+              "feedback-on-success": "inline",
+              "feedback-on-failure": "inline-error",
+              "fires-events": []
+            },
+            {
+              "id": "action:shaping.product.archive",
+              "label": "Archive",
+              "kind": "command",
+              "actor": "owner",
+              "result": "status -> archived",
+              "destructive": false,
+              "confirmation-required": true,
+              "cancellable": true,
+              "undoable": true,
+              "feedback-on-success": "toast",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:shaping.product-archived"]
+            },
+            {
+              "id": "action:shaping.product.delete",
+              "label": "Delete",
+              "kind": "command",
+              "actor": "owner",
+              "result": "removes object:shaping.product and cascades to its artifacts, features, and idea-seed",
+              "destructive": true,
+              "confirmation-required": true,
+              "cancellable": true,
+              "undoable": false,
+              "feedback-on-success": "toast",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:shaping.product-deleted"]
+            },
+            {
+              "id": "action:shaping.product.list",
+              "label": "List",
+              "kind": "query",
+              "actor": "user",
+              "result": "returns object:shaping.product[] owned by the current user",
+              "destructive": false
+            }
+          ],
+          "relationships": [
+            { "to": "object:shaping.artifact", "kind": "has-many", "label": "artifacts", "aggregate-internal": false },
+            { "to": "object:shaping.feature", "kind": "has-many", "label": "features", "aggregate-internal": false },
+            { "to": "object:shaping.idea-seed", "kind": "has-one", "label": "idea seed", "aggregate-internal": true },
+            { "to": "object:identity.user", "kind": "belongs-to", "label": "owner", "aggregate-internal": false }
+          ]
+        },
+        {
+          "id": "object:shaping.artifact",
+          "label": "Artifact",
+          "purpose": "A single generated spec file (product.md, journey.md, domain-map.json, sitemap, nav-model, or a feature's shape.md) — the unit of value specforge produces.",
+          "kind": "entity",
+          "aggregate": "object:shaping.artifact",
+          "attributes": [
+            { "name": "title", "type": "string", "required": true, "shown-on-list": true },
+            { "name": "artifact-kind", "type": "enum", "values": ["product", "journey", "domain-map", "sitemap", "nav-model", "shape", "flow-graph", "straight-line", "wireframe", "low-fi", "high-fi", "critique"], "required": true, "shown-on-list": true },
+            { "name": "scope", "type": "enum", "values": ["product", "feature", "flow", "screen"], "required": true, "shown-on-list": true },
+            { "name": "status", "type": "enum", "values": ["skeleton", "refined", "complete"], "required": true, "shown-on-list": true },
+            { "name": "content", "type": "text", "required": false, "shown-on-list": false },
+            { "name": "revision", "type": "number", "required": true, "shown-on-list": false },
+            { "name": "product", "type": "ref", "to": "object:shaping.product", "required": true, "shown-on-list": false },
+            { "name": "feature", "type": "ref", "to": "object:shaping.feature", "required": false, "shown-on-list": false }
+          ],
+          "actions": [
+            {
+              "id": "action:shaping.artifact.generate",
+              "label": "Generate",
+              "kind": "command",
+              "actor": "user",
+              "result": "creates new object:shaping.artifact (the skeleton product.md on First Strike; any tree artifact thereafter)",
+              "destructive": false,
+              "confirmation-required": false,
+              "cancellable": true,
+              "undoable": false,
+              "feedback-on-success": "artifact-rendered-with-toast",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:shaping.artifact-generated", "event:billing.quota-reached"]
+            },
+            {
+              "id": "action:shaping.artifact.refine",
+              "label": "Refine",
+              "kind": "command",
+              "actor": "owner",
+              "result": "deepens an artifact along the fidelity ladder (status skeleton -> refined -> complete), producing a new revision",
+              "destructive": false,
+              "confirmation-required": false,
+              "cancellable": true,
+              "undoable": true,
+              "feedback-on-success": "artifact-rendered-with-toast",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:shaping.artifact-generated"]
+            },
+            {
+              "id": "action:shaping.artifact.edit",
+              "label": "Edit",
+              "kind": "command",
+              "actor": "owner",
+              "result": "user edits artifact content inline (document-style)",
+              "destructive": false,
+              "confirmation-required": false,
+              "cancellable": true,
+              "undoable": true,
+              "feedback-on-success": "inline-autosave",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:shaping.artifact-edited"]
+            },
+            {
+              "id": "action:shaping.artifact.export",
+              "label": "Export / hand off",
+              "kind": "command",
+              "actor": "owner",
+              "result": "exports the artifact (or whole tree) for a downstream coding agent",
+              "destructive": false,
+              "confirmation-required": false,
+              "cancellable": true,
+              "undoable": false,
+              "feedback-on-success": "toast",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:shaping.artifact-exported"]
+            },
+            {
+              "id": "action:shaping.artifact.delete",
+              "label": "Delete",
+              "kind": "command",
+              "actor": "owner",
+              "result": "removes object:shaping.artifact",
+              "destructive": true,
+              "confirmation-required": true,
+              "cancellable": true,
+              "undoable": false,
+              "feedback-on-success": "toast",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:shaping.artifact-deleted"]
+            },
+            {
+              "id": "action:shaping.artifact.view",
+              "label": "View",
+              "kind": "query",
+              "actor": "user",
+              "result": "returns one object:shaping.artifact with its content",
+              "destructive": false
+            },
+            {
+              "id": "action:shaping.artifact.list",
+              "label": "List",
+              "kind": "query",
+              "actor": "user",
+              "result": "returns object:shaping.artifact[] for a product or feature",
+              "destructive": false
+            }
+          ],
+          "relationships": [
+            { "to": "object:shaping.product", "kind": "belongs-to", "label": "product", "aggregate-internal": false },
+            { "to": "object:shaping.feature", "kind": "belongs-to", "label": "feature", "aggregate-internal": false }
+          ]
+        },
+        {
+          "id": "object:shaping.feature",
+          "label": "Feature",
+          "purpose": "A feature within a product being specced; each feature gets its own shape.md and downstream flow artifacts.",
+          "kind": "entity",
+          "aggregate": "object:shaping.feature",
+          "attributes": [
+            { "name": "name", "type": "string", "required": true, "shown-on-list": true },
+            { "name": "slug", "type": "string", "required": true, "shown-on-list": false },
+            { "name": "target-stage", "type": "enum", "values": ["search", "select", "setup", "showcase", "scale"], "required": true, "shown-on-list": true },
+            { "name": "target-milestone", "type": "string", "required": false, "shown-on-list": true },
+            { "name": "appetite", "type": "enum", "values": ["small", "medium", "large"], "required": true, "shown-on-list": true },
+            { "name": "product", "type": "ref", "to": "object:shaping.product", "required": true, "shown-on-list": false }
+          ],
+          "actions": [
+            {
+              "id": "action:shaping.feature.create",
+              "label": "Create",
+              "kind": "command",
+              "actor": "owner",
+              "result": "creates new object:shaping.feature under a product",
+              "destructive": false,
+              "confirmation-required": false,
+              "cancellable": true,
+              "undoable": false,
+              "feedback-on-success": "toast",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:shaping.feature-created"]
+            },
+            {
+              "id": "action:shaping.feature.rename",
+              "label": "Rename",
+              "kind": "command",
+              "actor": "owner",
+              "result": "name -> new value",
+              "destructive": false,
+              "confirmation-required": false,
+              "cancellable": true,
+              "undoable": true,
+              "feedback-on-success": "inline",
+              "feedback-on-failure": "inline-error",
+              "fires-events": []
+            },
+            {
+              "id": "action:shaping.feature.delete",
+              "label": "Delete",
+              "kind": "command",
+              "actor": "owner",
+              "result": "removes object:shaping.feature and cascades to its feature-scope artifacts",
+              "destructive": true,
+              "confirmation-required": true,
+              "cancellable": true,
+              "undoable": false,
+              "feedback-on-success": "toast",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:shaping.feature-deleted"]
+            },
+            {
+              "id": "action:shaping.feature.list",
+              "label": "List",
+              "kind": "query",
+              "actor": "user",
+              "result": "returns object:shaping.feature[] for a product",
+              "destructive": false
+            }
+          ],
+          "relationships": [
+            { "to": "object:shaping.product", "kind": "belongs-to", "label": "product", "aggregate-internal": false },
+            { "to": "object:shaping.artifact", "kind": "has-many", "label": "artifacts", "aggregate-internal": false }
+          ]
+        },
+        {
+          "id": "object:shaping.idea-seed",
+          "label": "IdeaSeed",
+          "purpose": "The fuzzy idea text a product is shaped from — the raw seed the user describes or pastes.",
+          "kind": "value-object",
+          "aggregate": "object:shaping.product",
+          "attributes": [
+            { "name": "text", "type": "text", "required": true, "shown-on-list": false },
+            { "name": "source", "type": "enum", "values": ["typed", "pasted"], "required": false, "shown-on-list": false }
+          ],
+          "actions": [],
+          "relationships": [
+            { "to": "object:shaping.product", "kind": "belongs-to", "label": "product", "aggregate-internal": true }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "id": "event:shaping.artifact-generated",
+          "name": "ArtifactGenerated",
+          "fired-by": ["action:shaping.artifact.generate", "action:shaping.artifact.refine"],
+          "consumed-by": ["screen:shape/anchor-result", "screen:dashboard/main", "context:billing", "behaviour-trigger:first-strike-celebration"]
+        },
+        {
+          "id": "event:shaping.product-created",
+          "name": "ProductCreated",
+          "fired-by": ["action:shaping.product.create"],
+          "consumed-by": ["screen:dashboard/main"]
+        },
+        {
+          "id": "event:shaping.product-archived",
+          "name": "ProductArchived",
+          "fired-by": ["action:shaping.product.archive"],
+          "consumed-by": ["screen:dashboard/main"]
+        },
+        {
+          "id": "event:shaping.product-deleted",
+          "name": "ProductDeleted",
+          "fired-by": ["action:shaping.product.delete"],
+          "consumed-by": ["screen:dashboard/main"]
+        },
+        {
+          "id": "event:shaping.artifact-edited",
+          "name": "ArtifactEdited",
+          "fired-by": ["action:shaping.artifact.edit"],
+          "consumed-by": []
+        },
+        {
+          "id": "event:shaping.artifact-exported",
+          "name": "ArtifactExported",
+          "fired-by": ["action:shaping.artifact.export"],
+          "consumed-by": []
+        },
+        {
+          "id": "event:shaping.artifact-deleted",
+          "name": "ArtifactDeleted",
+          "fired-by": ["action:shaping.artifact.delete"],
+          "consumed-by": []
+        },
+        {
+          "id": "event:shaping.feature-created",
+          "name": "FeatureCreated",
+          "fired-by": ["action:shaping.feature.create"],
+          "consumed-by": ["screen:dashboard/main"]
+        },
+        {
+          "id": "event:shaping.feature-deleted",
+          "name": "FeatureDeleted",
+          "fired-by": ["action:shaping.feature.delete"],
+          "consumed-by": []
+        }
+      ]
+    },
+    {
+      "id": "context:identity",
+      "label": "Identity",
+      "purpose": "Users, sessions, and roles. Strong-auth is outsourced (Auth0 / Clerk / Supabase Auth); this context holds identity and RBAC, not credential storage.",
+      "objects": [
+        {
+          "id": "object:identity.user",
+          "label": "User",
+          "purpose": "Authenticated founder using specforge to shape products into specs.",
+          "kind": "entity",
+          "aggregate": "object:identity.user",
+          "attributes": [
+            { "name": "email", "type": "string", "required": true, "shown-on-list": true },
+            { "name": "display-name", "type": "string", "required": true, "shown-on-list": true },
+            { "name": "role", "type": "enum", "values": ["owner", "editor", "viewer"], "required": true, "shown-on-list": true }
+          ],
+          "actions": [
+            {
+              "id": "action:identity.user.sign-up",
+              "label": "Sign up",
+              "kind": "command",
+              "actor": "visitor",
+              "result": "creates new object:identity.user (email or magic-link; no card, no sales gate)",
+              "destructive": false,
+              "confirmation-required": false,
+              "cancellable": true,
+              "undoable": false,
+              "feedback-on-success": "redirect-to-onboarding",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:identity.user-registered"]
+            },
+            {
+              "id": "action:identity.user.sign-in",
+              "label": "Sign in",
+              "kind": "command",
+              "actor": "visitor",
+              "result": "authenticates the user and opens a session",
+              "destructive": false,
+              "confirmation-required": false,
+              "cancellable": true,
+              "undoable": false,
+              "feedback-on-success": "redirect-to-dashboard",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:identity.user-authenticated"]
+            },
+            {
+              "id": "action:identity.user.sign-out",
+              "label": "Sign out",
+              "kind": "command",
+              "actor": "user",
+              "result": "closes the current session",
+              "destructive": false,
+              "confirmation-required": false,
+              "cancellable": false,
+              "undoable": false,
+              "feedback-on-success": "redirect-to-landing",
+              "feedback-on-failure": "toast",
+              "fires-events": []
+            },
+            {
+              "id": "action:identity.user.update-profile",
+              "label": "Update profile",
+              "kind": "command",
+              "actor": "owner",
+              "result": "updates display-name / email (modal edit — discrete entity)",
+              "destructive": false,
+              "confirmation-required": false,
+              "cancellable": true,
+              "undoable": true,
+              "feedback-on-success": "toast",
+              "feedback-on-failure": "inline-error",
+              "fires-events": []
+            },
+            {
+              "id": "action:identity.user.delete-account",
+              "label": "Delete account",
+              "kind": "command",
+              "actor": "owner",
+              "result": "removes object:identity.user and their data (symmetric escape, no dark-pattern loop)",
+              "destructive": true,
+              "confirmation-required": true,
+              "cancellable": true,
+              "undoable": false,
+              "feedback-on-success": "redirect-to-landing",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:identity.account-deleted"]
+            }
+          ],
+          "relationships": [
+            { "to": "object:shaping.product", "kind": "has-many", "label": "owned products", "aggregate-internal": false },
+            { "to": "object:billing.subscription", "kind": "has-one", "label": "subscription", "aggregate-internal": false }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "id": "event:identity.user-registered",
+          "name": "UserRegistered",
+          "fired-by": ["action:identity.user.sign-up"],
+          "consumed-by": ["context:billing", "behaviour-trigger:welcome-email"]
+        },
+        {
+          "id": "event:identity.user-authenticated",
+          "name": "UserAuthenticated",
+          "fired-by": ["action:identity.user.sign-in"],
+          "consumed-by": []
+        },
+        {
+          "id": "event:identity.account-deleted",
+          "name": "AccountDeleted",
+          "fired-by": ["action:identity.user.delete-account"],
+          "consumed-by": ["context:billing"]
+        }
+      ]
+    },
+    {
+      "id": "context:billing",
+      "label": "Billing",
+      "purpose": "The freemium offer: the plan a user is on and the artifact meter (the value metric tied to KUI) that gates the free tier and places the paywall.",
+      "objects": [
+        {
+          "id": "object:billing.subscription",
+          "label": "Subscription",
+          "purpose": "The user's plan — free or paid — governing access to further artifact generation beyond the free meter.",
+          "kind": "entity",
+          "aggregate": "object:billing.subscription",
+          "attributes": [
+            { "name": "plan", "type": "enum", "values": ["free", "pro"], "required": true, "shown-on-list": true },
+            { "name": "status", "type": "enum", "values": ["active", "past-due", "cancelled"], "required": true, "shown-on-list": true },
+            { "name": "current-period-end", "type": "date", "required": false, "shown-on-list": false },
+            { "name": "user", "type": "ref", "to": "object:identity.user", "required": true, "shown-on-list": false }
+          ],
+          "actions": [
+            {
+              "id": "action:billing.subscription.upgrade",
+              "label": "Upgrade",
+              "kind": "command",
+              "actor": "owner",
+              "result": "plan -> pro (one click, at the moment the meter is reached)",
+              "destructive": false,
+              "confirmation-required": false,
+              "cancellable": true,
+              "undoable": true,
+              "feedback-on-success": "toast",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:billing.subscription-upgraded"]
+            },
+            {
+              "id": "action:billing.subscription.downgrade",
+              "label": "Downgrade",
+              "kind": "command",
+              "actor": "owner",
+              "result": "plan -> free (one click, symmetric to upgrade, no wall — work is preserved)",
+              "destructive": false,
+              "confirmation-required": false,
+              "cancellable": true,
+              "undoable": true,
+              "feedback-on-success": "toast",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:billing.subscription-downgraded"]
+            },
+            {
+              "id": "action:billing.subscription.cancel",
+              "label": "Cancel",
+              "kind": "command",
+              "actor": "owner",
+              "result": "status -> cancelled (single honest confirm; no survey gate, no retention modal)",
+              "destructive": false,
+              "confirmation-required": true,
+              "cancellable": true,
+              "undoable": true,
+              "feedback-on-success": "toast",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:billing.subscription-cancelled"]
+            },
+            {
+              "id": "action:billing.subscription.view",
+              "label": "View plan & usage",
+              "kind": "query",
+              "actor": "owner",
+              "result": "returns the subscription with its current artifact-quota",
+              "destructive": false
+            }
+          ],
+          "relationships": [
+            { "to": "object:identity.user", "kind": "belongs-to", "label": "user", "aggregate-internal": false },
+            { "to": "object:billing.artifact-quota", "kind": "has-one", "label": "artifact quota", "aggregate-internal": true }
+          ]
+        },
+        {
+          "id": "object:billing.artifact-quota",
+          "label": "ArtifactQuota",
+          "purpose": "The free-tier artifact meter — generations used against the limit in the current window; the value metric tied to the KUI.",
+          "kind": "value-object",
+          "aggregate": "object:billing.subscription",
+          "attributes": [
+            { "name": "used", "type": "number", "required": true, "shown-on-list": true },
+            { "name": "limit", "type": "number", "required": true, "shown-on-list": true },
+            { "name": "window", "type": "string", "required": true, "shown-on-list": false },
+            { "name": "resets-at", "type": "date", "required": false, "shown-on-list": false }
+          ],
+          "actions": [],
+          "relationships": [
+            { "to": "object:billing.subscription", "kind": "belongs-to", "label": "subscription", "aggregate-internal": true }
+          ]
+        }
+      ],
+      "events": [
+        {
+          "id": "event:billing.subscription-upgraded",
+          "name": "SubscriptionUpgraded",
+          "fired-by": ["action:billing.subscription.upgrade"],
+          "consumed-by": ["screen:dashboard/main"]
+        },
+        {
+          "id": "event:billing.subscription-downgraded",
+          "name": "SubscriptionDowngraded",
+          "fired-by": ["action:billing.subscription.downgrade"],
+          "consumed-by": []
+        },
+        {
+          "id": "event:billing.subscription-cancelled",
+          "name": "SubscriptionCancelled",
+          "fired-by": ["action:billing.subscription.cancel"],
+          "consumed-by": []
+        },
+        {
+          "id": "event:billing.quota-reached",
+          "name": "QuotaReached",
+          "fired-by": ["action:shaping.artifact.generate"],
+          "consumed-by": ["screen:billing/paywall", "behaviour-trigger:upgrade-prompt"]
+        }
+      ]
+    }
+  ]
+}
