@@ -17,7 +17,7 @@ triggers:
   - "define the product"
   - "start the spec"
 od:
-  mode: plg-shape
+  mode: prototype
   craft:
     requires: [plg-foundations, plg-moat, plg-personal-anti-patterns]
   spec:
