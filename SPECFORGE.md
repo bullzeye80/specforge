@@ -148,7 +148,7 @@ od:
 
 | Skill | Status |
 |---|---|
-| `skills/plg-shape/` | **v1 authored** — produces `product.md` (task 08, dogfooded end-to-end ✓) + `journey.md` (task 09, First Strike/KUI/PAI). Discovery via `<question-form>`, no HTML preview. Grow to sitemap/nav-model/domain-map next. journey.md not yet run end-to-end. |
+| `skills/plg-shape/` | **Complete (v2)** — produces the full product-scope set in dependency order: `product.md` (§6.1) → `journey.md` (§6.2) → `domain-map.json` (§6.5) → `sitemap.json` (§6.3) → `nav-model.md` (§6.4) → per-feature `shape.md` (§7.1). Discovery via `<question-form>`, no HTML preview. product.md + journey.md dogfooded ✓; domain-map/sitemap/nav-model/shape steps not yet run end-to-end. |
 | `skills/plg-flow/` | TBD |
 | `skills/plg-critique/` | TBD (OD's generic `design-templates/critique/` is the model; ours adds the 7 PLG checks) |
 | `skills/plg-build/` | Phase 2 |
