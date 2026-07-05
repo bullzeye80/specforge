@@ -159,7 +159,10 @@ od:
 |---|---|---|
 | `specs/design/_meta/artifact-schema.md` | v0.2 schema doc | Already authored |
 | `specs/design/_meta/artifact-schema-v0.1.md` | v0.1 for diff reference | Already authored |
-| `specs/design/_shared/` | Worked example for specforge itself (dogfooding) | TBD Phase 1 |
+| `specs/design/_shared/product.md` | specforge's own — dogfooded via plg-shape (interactive) | **Authored** |
+| `specs/design/_shared/journey.md` | specforge's own — dogfooded via plg-shape (First Strike/KUI/PAI) | **Authored** |
+| `specs/design/_shared/domain-map.json` | specforge's own — dogfooded via plg-shape (3 contexts, §6.5-clean) | **Authored** |
+| `specs/design/_shared/` (sitemap, nav-model, per-feature shape) | Remaining dogfood chain | TBD |
 
 ### Documentation additions
 
