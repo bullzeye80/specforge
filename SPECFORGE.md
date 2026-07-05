@@ -149,7 +149,7 @@ od:
 | Skill | Status |
 |---|---|
 | `skills/plg-shape/` | **Complete (v2)** — produces the full product-scope set in dependency order: `product.md` (§6.1) → `journey.md` (§6.2) → `domain-map.json` (§6.5) → `sitemap.json` (§6.3) → `nav-model.md` (§6.4) → per-feature `shape.md` (§7.1). Discovery via `<question-form>`, no HTML preview. product.md + journey.md dogfooded ✓; domain-map/sitemap/nav-model/shape steps not yet run end-to-end. |
-| `skills/plg-flow/` | TBD |
+| `skills/plg-flow/` | **v1 authored** — v0 breadboard rung (`flow-graph.json` §7.2 → `straight-line.md` §7.3) shipped + dogfooded on anchor-shaping (First-Strike anchored on `event:shaping.artifact-generated`). **v1 adds the fat-marker "what" rung:** one `wireframe.json` (§8.1, `version: "2"`) per distinct screen the flow touches — regions + contents, structural only (no layout/grid/states/copy), each interactive element traced back to a flow-graph affordance and using v0.2 `action:<object>.<verb>` refs. Not yet dogfooded end-to-end. Next rung — `low-fi.json` (layout half of the fat-marker). |
 | `skills/plg-critique/` | TBD (OD's generic `design-templates/critique/` is the model; ours adds the 7 PLG checks) |
 | `skills/plg-build/` | Phase 2 |
 

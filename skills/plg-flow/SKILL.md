@@ -1,15 +1,16 @@
 ---
 name: plg-flow
 description: |
-  Shape one already-shaped feature into its flow-scope spec — the
+  Shape one already-shaped feature into its flow- and fat-marker spec — the
   breadboard as a flow graph (places, affordances, connections, the
-  first-strike-place, and the application use-case) plus the happy-path
-  straight-line narrative — authored under
-  specs/design/features/<feature-slug>/. Reads the feature's shape.md and
-  the product-scope inputs (sitemap.json, domain-map.json, journey.md,
-  product.md); it never rewrites them. Use when the brief is "flow", "map
-  the flow", "breadboard this feature", "draw the flow graph", "plg flow",
-  "shape the flow", or "write the straight line".
+  first-strike-place, and the application use-case), the happy-path
+  straight-line narrative, and one structural wireframe per screen the flow
+  touches — authored under specs/design/features/<feature-slug>/. Reads the
+  feature's shape.md and the product-scope inputs (sitemap.json,
+  domain-map.json, journey.md, product.md); it never rewrites them. Use when
+  the brief is "flow", "map the flow", "breadboard this feature", "draw the
+  flow graph", "plg flow", "shape the flow", "write the straight line",
+  "wireframe the screens", or "fat-marker the flow".
 triggers:
   - "flow"
   - "map the flow"
@@ -18,23 +19,27 @@ triggers:
   - "plg flow"
   - "shape the flow"
   - "straight line"
+  - "wireframe"
+  - "wireframe the screens"
+  - "fat-marker"
 od:
   mode: prototype
   craft:
     requires: [plg-foundations, plg-shape-up, plg-eureka, plg-bj-fogg, plg-domain, plg-personal-anti-patterns]
   spec:
-    produces: [flow-graph.json, straight-line.md]
+    produces: [flow-graph.json, straight-line.md, wireframe.json]
     consumes: [shape.md, sitemap.json, domain-map.json, journey.md, product.md]
   design_system:
     requires: false
-  example_prompt: "Shape the flow for the anchor-shaping feature — breadboard the places and affordances from its shape.md and the sitemap, mark the first-strike place, then write the straight-line to first strike."
+  example_prompt: "Shape the flow for the anchor-shaping feature — breadboard the places and affordances from its shape.md and the sitemap, mark the first-strike place, write the straight-line to first strike, then wireframe each screen the flow touches."
 ---
 
-# plg-flow · the flow-scope artifact set (v0)
+# plg-flow · the flow- and fat-marker artifact set (v1)
 
-Take one **already-shaped feature** and produce its **flow-scope spec** — two
-artifacts under `specs/design/features/<feature-slug>/`, authored in order, each
-only after its inputs exist:
+Take one **already-shaped feature** and produce its **flow-scope spec plus the
+first half of the fat-marker rung** — authored under
+`specs/design/features/<feature-slug>/`, in order, each only after its inputs
+exist:
 
 1. `flow-graph.json` — the breadboard as a graph: places, affordances,
    connections, the entry/exit places, the first-strike-place, and the
@@ -42,6 +47,12 @@ only after its inputs exist:
 2. `straight-line.md` — the Shape-Up happy-path narrative: the single golden path
    from entry to first strike, plus the steps that *don't* lead there (schema
    §7.3, fields per v0.1 §7.3).
+3. `screens/<screen-slug>/wireframe.json` — one per **distinct screen the flow
+   graph touches**: the screen's regions and what each region contains,
+   structurally — the fat-marker "what", with **no layout, no grid, no
+   positioning, and no states** (schema §8.1, structure per v0.1 §8.1, bumped to
+   `version: "2"`). Those deferred concerns are the `low-fi.json` rung, which
+   comes later.
 
 You **consume** the already-authored inputs — you read them, you never rewrite
 them: `features/<feature-slug>/shape.md`, `_shared/sitemap.json`,
@@ -54,18 +65,23 @@ using the file tools. There is no iframe preview and no `index.html`.
 
 ## Scope — read before anything else
 
-**In scope (this v0):** exactly two flow-scope artifacts for one feature —
-`flow-graph.json` (§7.2) then `straight-line.md` (§7.3). The flow graph is the
-breadboard rung of the fidelity ladder; the straight-line is its happy-path
-companion.
+**In scope (this v1):** three artifacts for one feature, in order —
+`flow-graph.json` (§7.2), then `straight-line.md` (§7.3), then one
+`wireframe.json` (§8.1) **per distinct screen the flow graph references**. The
+flow graph is the breadboard rung; the straight-line is its happy-path companion;
+the wireframes are the **regions half of the fat-marker rung** (`plg-shape-up`:
+`wireframe.json` holds *what's on each screen, roughly grouped*; `low-fi.json`
+holds *where each region sits*). This skill produces the first half only.
 
-**Out of scope (do NOT produce here):** every **screen-scope** artifact —
-`wireframe.json`, `low-fi.json`, `high-fi.json` / `high-fi.html`. These come in
-later plg-flow iterations, not this v0. Keeping the first version to flow-scope
-keeps it small and testable and it respects the **fidelity ladder** (CLAUDE.md
-Rule 4 / `plg-shape-up`): flow before screens, and never skip a rung. If the user
-asks for wireframes or hi-fi, the answer is that the flow must be explicit
-first — you don't jump to a wireframe before the flow graph exists.
+**Out of scope (do NOT produce here):** the layout half of the fat-marker rung and
+everything above it — `low-fi.json` (grid, positioning, information hierarchy,
+states, simplicity-pass) and `high-fi.json` / `high-fi.html`. These come in later
+plg-flow iterations. This respects the **fidelity ladder** (CLAUDE.md Rule 4 /
+`plg-shape-up`): breadboard before fat-marker, regions before layout, and never
+skip a rung. If the user asks for layout, states, or hi-fi, the answer is that the
+wireframe's regions must be committed first — you don't place a region on a grid
+before the region exists, and you don't produce a wireframe before the flow graph
+exists.
 
 `critique.md` belongs to `plg-critique`, not here.
 
@@ -77,7 +93,9 @@ authority; this body only orchestrates them.
 - **`plg-shape-up`** — breadboard, fat-marker, and the fidelity ladder. Governs
   `flow-graph.json` **as a breadboard**: places and affordances first, structure
   before screens, one rung at a time. Governs `straight-line.md` as the happy-path
-  narrative.
+  narrative. Governs each `wireframe.json` as the **regions half of the fat-marker**:
+  what's on the screen roughly grouped into regions — never the grid, positioning,
+  emphasis, or states (those are `low-fi.json` concerns, deferred).
 - **`plg-eureka`** — the Straight-Line and First Strike discipline. The
   `first-strike-place` must be the place where `journey.md`'s First Strike lands,
   and the straight-line is the shortest honest path to it — no detours that don't
@@ -85,10 +103,14 @@ authority; this body only orchestrates them.
 - **`plg-bj-fogg`** — the behaviour model (B=MAP) along the flow: where motivation
   and ability are thin is where friction sits. Use it to reason about which places
   are drop-off risks and where a step earns its place on the path.
-- **`plg-domain`** — the command-vs-query discipline. An affordance that triggers a
-  domain action carries that action's ID (`triggers-action`) and inherits its
-  `kind` (`action-kind` ∈ `command | query`). A `primary-action` affordance that
-  triggers a **query** is a smell — flag it, don't normalise it.
+- **`plg-domain`** — the command-vs-query discipline and the object vocabulary. An
+  affordance that triggers a domain action carries that action's ID
+  (`triggers-action`) and inherits its `kind` (`action-kind` ∈ `command | query`).
+  A `primary-action` affordance that triggers a **query** is a smell — flag it,
+  don't normalise it. In `wireframe.json` it also governs the reference surface: a
+  region's `contains[].action` resolves to the **same** domain-map action the
+  originating affordance triggers, and `objects-shown` / `objects-acted-on` resolve
+  to domain-map objects.
 - **`plg-foundations`** — the seven-minute clock and First Strike vocabulary. The
   straight-line's `target-time` is measured against it.
 - **`plg-personal-anti-patterns`** — the anti-fabrication lens. Unknowns are open
@@ -104,7 +126,7 @@ what `shape.md` + `sitemap.json` don't already determine.
 - **Which feature** (`<feature-slug>`) to flow, if the brief didn't name one.
 - Genuinely ambiguous **flow choices**: the entry point, what counts as
   exit-success (which place *is* the first strike), whether a branch belongs in
-  this v0 or is deferred.
+  this v1 or is deferred.
 
 If `shape.md` + `sitemap.json` fully determine the feature and its happy path, you
 may proceed autonomously — send any residual unknowns to the artifact's open
@@ -191,7 +213,7 @@ resolvable link, nothing invented:
 - **Every `page:` ref must resolve to a `sitemap.json` node.** A `page:` that
   isn't in the sitemap is a blocker — fix the reference, or the missing page is a
   sitemap gap to record in open questions (a later plg-flow pass may extend the
-  sitemap; this v0 doesn't).
+  sitemap; this v1 doesn't).
 - **`screen:` ids** are `screen:<feature>/<screen-slug>`. The sitemap's node
   `screens[]` already names the screen a page carries — reference that id. The
   screen-scope layer fleshes these out later; here you only reference them.
@@ -255,32 +277,115 @@ Then the checks (`plg-eureka`, `plg-shape-up`, `plg-bj-fogg`):
   `target-time` blows the seven-minute clock, that's a finding, not something to
   paper over (`plg-foundations`).
 
-### Step 4 — Unknowns go to open questions, never to a placeholder
+### Step 4 — Write one `wireframe.json` per screen the flow touches
 
-Load-bearing across both files (`plg-personal-anti-patterns`, CLAUDE.md Rule 5):
-**you guide, you do not author Layer B for the user.** A confident guess in a
-required field is worse than an honest open question.
+Only after both `flow-graph.json` and `straight-line.md` exist. Enumerate the
+**distinct** `screen:` ids across the flow graph's `places[]` (several places may
+share one screen — you write one wireframe per screen, not per place). For each,
+write:
+
+`specs/design/features/<feature-slug>/screens/<screen-slug>/wireframe.json`
+
+where `<screen-slug>` is the part after the `/` in `screen:<feature>/<screen-slug>`.
+
+The wireframe is **structural**: the screen's regions and what each region
+contains, roughly grouped — the fat-marker "what". **No layout, no grid, no
+positioning, no visual emphasis, and no states** — those are `low-fi.json`
+concerns and are out of scope. Match artifact-schema §8.1 (structure per v0.1
+§8.1) with `version: "2"` — reproduce the skeleton verbatim, invent no fields:
+
+```json
+{
+  "version": "2",
+  "screen": "screen:<feature>/<screen-slug>",
+  "purpose": "<what this screen is for, one line>",
+  "kind": "page | modal | panel | sheet | full-screen",
+  "auth": "required | none",
+  "page": "page:<slug>",
+  "objects-shown": ["object:<slug>"],
+  "objects-acted-on": ["object:<slug>"],
+  "regions": [
+    {
+      "id": "region:<slug>",
+      "label": "<label>",
+      "role": "navigation | primary-content | secondary | utility | system",
+      "contains": [
+        { "kind": "heading", "level": 1, "text-intent": "<what the text is FOR>", "personalised": true },
+        { "kind": "primary-cta", "action": "action:<object>.<verb>", "leads-to": "screen:<feature>/<screen-slug>" }
+      ]
+    }
+  ]
+}
+```
+
+Then the reference and field rules — every ref resolves, nothing invented:
+
+- **Traceability to the flow graph is the point.** Each interactive `contains`
+  element (`primary-cta`, `secondary-cta`, `link`, `skip-link`, …) must correspond
+  to a `flow-graph.json` affordance on one of **this screen's** places. Its
+  `action` is that affordance's `triggers-action` (identical id); its `leads-to`
+  is the `screen:` of the place that affordance's `leads-to` points at. A wireframe
+  element with no affordance behind it is a smell — either the flow graph is
+  missing an affordance (fix it there first) or the element doesn't belong.
+- **`action` uses the v0.2 domain-map form** — `action:<object>.<verb>` (e.g.
+  `action:shaping.artifact.generate`), resolving to a `domain-map.json` action.
+  Do **not** copy the stale v0.1 verb-noun form (`action:start-first-spec`); the
+  schema is "unchanged from v0.1" in its *fields*, but reference *values* follow
+  v0.2 conventions, exactly as `flow-graph.json`'s `triggers-action` does. For a
+  pure-navigation element, omit `action` and keep only `leads-to`.
+- **`page` must resolve to a `sitemap.json` node** — the same `page:` the screen's
+  places carry in the flow graph. A `page:` not in the sitemap is a blocker, not a
+  placeholder (this v1 does not extend the sitemap; record the gap in open
+  questions).
+- **`objects-shown` / `objects-acted-on` resolve to `domain-map.json` objects.**
+  `objects-acted-on` is the objects this screen's commands mutate; leave it `[]`
+  for a read-only screen.
+- **`role`** is one of `navigation | primary-content | secondary | utility |
+  system`. **`contains[].kind`** is drawn from the enumerated vocabulary: `logo`,
+  `heading`, `body-text`, `primary-cta`, `secondary-cta`, `link`, `form`, `field`,
+  `list`, `card`, `image`, `media`, `data-viz`, `empty-state`, `loader`, `error`,
+  `user-menu`, `skip-link`, `disclosure`, `progress`, `tab-set`, `breadcrumb`
+  (extensible where the screen genuinely needs it).
+- **`text-intent` is what the text is *for*, never the copy itself** — real copy
+  lives in `low-fi.json` / `high-fi.*`, not here. `personalised` marks text that
+  adapts to the user.
+- **The first-strike screen earns its primary content.** On the screen carrying
+  the flow's `first-strike-place`, the region hierarchy must make the first-strike
+  moment the primary content (`plg-eureka`) — don't bury it under nav or utility.
+
+### Step 5 — Unknowns go to open questions, never to a placeholder
+
+Load-bearing across all three files (`plg-personal-anti-patterns`, CLAUDE.md
+Rule 5): **you guide, you do not author Layer B for the user.** A confident guess
+in a required field is worse than an honest open question.
 
 - **`straight-line.md`** is prose — record any owed decision under a
-  `## Open questions` section (add it after `## Drop-off candidates`).
-- **`flow-graph.json`** is JSON with no prose section — do **not** invent a field
-  to hold unknowns, and do **not** fabricate a place, affordance, `page:`,
-  `screen:`, or `triggers-action` just to satisfy the schema. Omit what you can't
-  justify, record the gap in `straight-line.md`'s open questions, and raise
-  anything blocking (an ambiguous entry point, a missing sitemap page) as a
-  follow-up `<question-form>` before writing.
+  `## Open questions` section (add it after `## Drop-off candidates`). This is the
+  feature's prose home for open questions, including ones surfaced while writing the
+  wireframes.
+- **`flow-graph.json`** and **`wireframe.json`** are JSON with no prose section —
+  do **not** invent a field to hold unknowns, and do **not** fabricate a place,
+  affordance, region, `page:`, `screen:`, `object:`, or `action:` just to satisfy
+  the schema. Omit what you can't justify, record the gap in `straight-line.md`'s
+  open questions, and raise anything blocking (an ambiguous entry point, a missing
+  sitemap page, a region whose grouping you can't determine) as a follow-up
+  `<question-form>` before writing.
 
 ## Hard rules
 
-- **Two files, in order, per feature.** `flow-graph.json` (§7.2) →
-  `straight-line.md` (§7.3). The straight-line only after the flow graph exists.
+- **Three artifacts, in order, per feature.** `flow-graph.json` (§7.2) →
+  `straight-line.md` (§7.3) → one `wireframe.json` (§8.1) per distinct screen the
+  flow touches. The straight-line only after the flow graph exists; the wireframes
+  only after both exist.
 - **Consume, never rewrite.** `shape.md`, `sitemap.json`, `domain-map.json`,
   `journey.md`, and `product.md` are inputs you read. This skill writes only the
-  two flow-scope files; it does not edit its inputs. (Extending the sitemap for new
-  pages is a later plg-flow iteration, not this v0.)
-- **Flow-scope only.** Screen-scope artifacts (`wireframe.json` → `low-fi.json` →
-  `high-fi.*`) are out of scope for this v0 and arrive later. The fidelity ladder
-  forbids jumping to a wireframe before the flow is explicit (Rule 4 /
+  flow-scope files and the per-screen `wireframe.json`; it does not edit its inputs.
+  (Extending the sitemap for new pages is a later plg-flow iteration, not this v1.)
+- **Regions before layout; wireframe only.** `wireframe.json` is the regions half
+  of the fat-marker rung. `low-fi.json` (grid, positioning, information hierarchy,
+  states, simplicity-pass) and `high-fi.*` are out of scope for this v1 and arrive
+  later. The fidelity ladder forbids jumping to layout before the regions are
+  explicit, and to a wireframe before the flow is explicit (Rule 4 /
   `plg-shape-up`).
 - **Write to disk; no `<artifact>` block.** These are specs, not HTML surfaces —
   there is no iframe preview and no `index.html`.
@@ -288,11 +393,16 @@ required field is worse than an honest open question.
   `sitemap.json` fully determine the flow, proceed autonomously and send unknowns
   to open questions; otherwise gather them with a `<question-form>` and stop first.
 - **Every reference resolves.** Each `page:` to a sitemap node, each
-  `triggers-action` to a domain-map action with a matching `action-kind`, and
-  `first-strike-place` to a flow place that traces to `journey.md`'s First Strike.
-  An unresolved reference is a blocker, not a placeholder.
+  `triggers-action` / wireframe `action` to a domain-map action (with a matching
+  `action-kind` where the flow graph carries one), each `screen:` / `object:` to a
+  real screen or domain-map object, each wireframe interactive element to a
+  flow-graph affordance on that screen, and `first-strike-place` to a flow place
+  that traces to `journey.md`'s First Strike. An unresolved reference is a blocker,
+  not a placeholder.
 - **No invented Layer B.** Unknowns are open questions in `straight-line.md`, never
-  defaults; `flow-graph.json` holds nothing you can't justify.
+  defaults; `flow-graph.json` and `wireframe.json` hold nothing you can't justify.
 - **Schema fields verbatim** — §7.2 for the flow graph, §7.3 (fields per v0.1 §7.3)
-  for the straight-line, both with `version: "2"`. Don't add, rename, or drop
-  fields the schema defines.
+  for the straight-line, §8.1 (structure per v0.1 §8.1) for the wireframe, all with
+  `version: "2"`. Don't add, rename, or drop fields the schema defines — and in the
+  wireframe, use v0.2 reference *values* (`action:<object>.<verb>`) even though the
+  *fields* are inherited from v0.1.
