@@ -1,14 +1,17 @@
 ---
 name: plg-shape
 description: |
-  Shape a fuzzy product idea into the one-page product anchor —
-  specs/design/_shared/product.md. Elicits the ideal user, the
-  job-to-be-done (with push / pull / anxiety / habit forces), the MOAT
-  free-model inputs, the three usage levels, and the 7-minute UDE test,
-  then writes a schema-conformant product.md — and, building on it, a
-  journey.md (Search→Scale roadmap with a measurable First Strike, KUI,
-  and PAI). Use when the brief is "shape a product", "new product spec",
-  "define the product", "map the user journey", or "start the PLG spec".
+  Shape a fuzzy product idea into the full product-scope spec artifact
+  set under specs/design/. Elicits the ideal user, the job-to-be-done
+  (with push / pull / anxiety / habit forces), the MOAT free-model
+  inputs, the usage levels, and the 7-minute UDE test, then authors the
+  chain in dependency order: the anchor (product.md) → the journey
+  (journey.md, with a measurable First Strike, KUI, and PAI) → the
+  OOUX+DDD domain model (domain-map.json) → the page graph (sitemap.json)
+  → the navigation model (nav-model.md) → one shape.md per feature. Use
+  when the brief is "shape a product", "new product spec", "define the
+  product", "map the user journey", "model the domain", "draft the
+  sitemap", or "start the PLG spec".
 triggers:
   - "shape"
   - "shape a product"
@@ -20,40 +23,62 @@ triggers:
 od:
   mode: prototype
   craft:
-    requires: [plg-foundations, plg-moat, plg-eureka, plg-bj-fogg, plg-personal-anti-patterns]
+    requires: [plg-foundations, plg-moat, plg-eureka, plg-bj-fogg, plg-domain, plg-personal-anti-patterns]
   spec:
-    produces: [product.md, journey.md]
+    produces: [product.md, journey.md, sitemap.json, nav-model.md, domain-map.json, shape.md]
     consumes: []
   design_system:
     requires: false
   example_prompt: "Shape a PLG product for a spec tool that lets designers publish a shareable design spec — help me define the ideal user, the job, the MOAT, and the 7-minute outcome, then write product.md."
 ---
 
-# plg-shape · the product anchor (v0)
+# plg-shape · the product-scope artifact set (v1)
 
-Turn a fuzzy product idea into **one file**: `specs/design/_shared/product.md`
-— the one-page anchor every other specforge skill reads. You do not produce an
-HTML artifact and you do not emit an `<artifact>` block; you write a structured
-Markdown-with-YAML file **directly to disk** using the file tools.
+Turn a fuzzy product idea into the **full product-scope spec** under
+`specs/design/` — six artifacts, authored in dependency order, each only after
+its inputs exist:
+
+1. `_shared/product.md` — the one-page anchor (schema §6.1)
+2. `_shared/journey.md` — the Search→Scale roadmap (§6.2)
+3. `_shared/domain-map.json` — the OOUX+DDD domain model (§6.5)
+4. `_shared/sitemap.json` — the page graph (§6.3)
+5. `_shared/nav-model.md` — the navigation model (§6.4)
+6. `features/<feature-slug>/shape.md` — one per feature (§7.1)
+
+Every other specforge skill (`plg-flow`, `plg-critique`, `plg-build`) reads
+these. You do not produce an HTML artifact and you do not emit an `<artifact>`
+block; you write structured Markdown-with-YAML and JSON files **directly to
+disk** using the file tools.
 
 This is a **mode skill**, not a surface generator. Its output is a spec, not a
-screen. Author it against the injected craft, in the user's own words, and stop
-at the fields the user can actually answer.
+screen. Author each file against the injected craft, in the user's own words, and
+stop at the fields the user can actually answer.
 
 ## Scope — read before anything else
 
-**In scope:** two files, authored in order — `specs/design/_shared/product.md`
-(artifact-schema §6.1), then `specs/design/_shared/journey.md` (§6.2). journey.md
-builds on product.md and is authored second, never before it exists.
+**In scope:** all six product-scope artifacts, authored in dependency order —
+each only after its inputs exist:
 
-**Out of scope (later plg-shape iterations, do NOT produce here):**
-`sitemap.json`, `nav-model.md`, `domain-map.json`, and per-feature `shape.md`. If
-the user asks for those, say they come in a later pass. Keeping the surface to
-product.md + journey.md is deliberate — it stays small and testable.
+1. `_shared/product.md` (§6.1) — the anchor. First; nothing precedes it.
+2. `_shared/journey.md` (§6.2) — builds on product.md's First Strike / MOAT.
+3. `_shared/domain-map.json` (§6.5) — the OOUX+DDD model. Authored **before** the
+   sitemap, because pages and screens reference the objects it defines.
+4. `_shared/sitemap.json` (§6.3) — the page graph; every page references
+   domain-map objects and serves journey stages. Initial cut only.
+5. `_shared/nav-model.md` (§6.4) — the navigation model over the sitemap.
+6. `features/<feature-slug>/shape.md` (§7.1) — one per feature you identify from
+   the journey and sitemap.
+
+**Out of scope (belongs to `plg-flow` / `plg-critique`, do NOT produce here):**
+every flow- and screen-scope artifact — `flow-graph.json`, `straight-line.md`,
+`wireframe.json`, `low-fi.json`, `high-fi.json`/`.html`, and `critique.md`. The
+`sitemap.json` you write here is the *initial* cut; `plg-flow` extends it as
+features add pages. If the user asks for screens or flows, say those come in the
+`plg-flow` pass.
 
 ## Injected craft — the substance comes from here
 
-The daemon injects these three craft files above this skill. Read them as the
+The daemon injects these six craft files above this skill. Read them as the
 authority; this body only orchestrates them.
 
 - **`plg-foundations`** — the five usage levels, the 7-minute UDE test, and the
@@ -70,6 +95,12 @@ authority; this body only orchestrates them.
   `first-strike`, `kui`, and `pai` blocks.
 - **`plg-bj-fogg`** — behaviour model (B=MAP) behind the journey's prompts and
   the events that trigger Conversational Bumpers.
+- **`plg-domain`** — the OOUX+DDD discipline for `domain-map.json`: objects vs
+  UI-affordances/attributes/verbs, entity vs value-object (`kind`), aggregates
+  and roots (`aggregate`), command vs query with Erik's Actions Checklist on
+  every command, relationships with `aggregate-internal`, bounded contexts, and
+  the events each command fires. Governs every field of the domain model — load
+  the whole file when authoring it, and run its nine-step one-pass workflow.
 - **`plg-personal-anti-patterns`** — the product-shape lens applied while
   shaping: asymmetry in the user's favour, symmetry on pricing, the free tier as
   a contract, decision-relief. Read the JTBD and MOAT answers through it.
@@ -232,24 +263,360 @@ Then the craft checks before it's done (`plg-eureka`, `plg-foundations`):
 - The Straight-Line holds — Setup steps that don't lead to First Strike are
   delete-or-defer candidates worth noting in the Narrative.
 
-### Step 4 — Unknowns go to `## Open questions`, never to a placeholder
+### Step 4 — Write `specs/design/_shared/domain-map.json`
 
-This is the load-bearing discipline (`plg-personal-anti-patterns`, and CLAUDE.md
-Rule 5): **you guide, you do not author Layer B for the user.** When the user
-says "I don't know" or leaves a field blank, do **not** fill it with a
-plausible-sounding default. Record it under `## Open questions` as a decision the
-product owner still owes — e.g. "MOAT market stance undecided; free-model can't
-be finalised until it's set." A confident guess in a required field is worse than
-an honest open question.
+The OOUX+DDD model — authored **before** the sitemap, because every page and
+screen references the objects it defines. Load `plg-domain` in full and run its
+nine-step one-pass workflow (brainstorm nouns → group by context → entity vs
+value-object → aggregates → attributes → actions with command/query → relationships
+→ events → validate). The nouns come from the user's own product, not from you:
+if `product.md`'s narrative and JTBD don't already name the objects, gather them
+with a short follow-up `<question-form id="domain">` — the nouns the user thinks
+about, what each one *has*, and what can be *done* to it — before writing. Don't
+invent objects to fill the model.
+
+Write the file to match artifact-schema §6.5 exactly. The skeleton is
+`bounded-contexts[]`, each context carrying its own `objects[]` and `events[]`:
+
+```json
+{
+  "version": "2",
+  "bounded-contexts": [
+    {
+      "id": "context:collaboration",
+      "label": "Collaboration",
+      "purpose": "Project-and-task management; the user-facing core.",
+      "objects": [
+        {
+          "id": "object:collaboration.project",
+          "label": "Project",
+          "purpose": "A unit of work the user owns.",
+          "kind": "entity",
+          "aggregate": "object:collaboration.project",
+          "attributes": [
+            { "name": "title",  "type": "string", "required": true,  "shown-on-list": true },
+            { "name": "status", "type": "enum",   "values": ["draft", "active", "archived"], "shown-on-list": true },
+            { "name": "owner",  "type": "ref",    "to": "object:identity.user" }
+          ],
+          "actions": [
+            {
+              "id": "action:collaboration.project.create",
+              "label": "Create",
+              "kind": "command",
+              "actor": "user",
+              "result": "creates new object:collaboration.project",
+              "destructive": false,
+              "confirmation-required": false,
+              "cancellable": true,
+              "undoable": false,
+              "feedback-on-success": "toast",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:collaboration.project-created"]
+            },
+            {
+              "id": "action:collaboration.project.archive",
+              "label": "Archive",
+              "kind": "command",
+              "actor": "owner",
+              "result": "status -> archived",
+              "destructive": false,
+              "confirmation-required": true,
+              "cancellable": true,
+              "undoable": true,
+              "feedback-on-success": "toast",
+              "feedback-on-failure": "inline-error",
+              "fires-events": ["event:collaboration.project-archived"]
+            },
+            {
+              "id": "action:collaboration.project.list",
+              "label": "List",
+              "kind": "query",
+              "actor": "user",
+              "result": "returns object:collaboration.project[]",
+              "destructive": false
+            }
+          ],
+          "relationships": [
+            { "to": "object:collaboration.task", "kind": "has-many", "label": "tasks", "aggregate-internal": false },
+            { "to": "object:identity.user", "kind": "belongs-to", "label": "owner", "aggregate-internal": false }
+          ]
+        },
+        {
+          "id": "object:collaboration.due-date",
+          "label": "DueDate",
+          "purpose": "A deadline associated with a Task.",
+          "kind": "value-object",
+          "aggregate": "object:collaboration.task",
+          "attributes": [
+            { "name": "date", "type": "date", "required": true },
+            { "name": "timezone", "type": "string", "required": true },
+            { "name": "all-day", "type": "boolean", "required": false }
+          ],
+          "actions": [],
+          "relationships": []
+        }
+      ],
+      "events": [
+        {
+          "id": "event:collaboration.project-created",
+          "name": "ProjectCreated",
+          "fired-by": ["action:collaboration.project.create"],
+          "consumed-by": ["screen:dashboard/main", "behaviour-trigger:welcome-email"]
+        },
+        {
+          "id": "event:collaboration.project-archived",
+          "name": "ProjectArchived",
+          "fired-by": ["action:collaboration.project.archive"],
+          "consumed-by": ["screen:dashboard/main"]
+        }
+      ]
+    },
+    {
+      "id": "context:identity",
+      "label": "Identity",
+      "purpose": "Users, sessions, roles, permissions.",
+      "objects": [
+        {
+          "id": "object:identity.user",
+          "label": "User",
+          "purpose": "Authenticated person interacting with the product.",
+          "kind": "entity",
+          "aggregate": "object:identity.user",
+          "attributes": [
+            { "name": "email", "type": "string", "required": true, "shown-on-list": true },
+            { "name": "display-name", "type": "string", "required": true, "shown-on-list": true }
+          ],
+          "actions": [],
+          "relationships": []
+        }
+      ],
+      "events": []
+    }
+  ]
+}
+```
+
+Then the field rules the schema and `plg-domain` require — no field invented,
+none dropped:
+
+- **Every object** has `kind: entity | value-object`, `aggregate: <root-id>` (the
+  root references itself), and a one-sentence `purpose`. A missing `kind`,
+  `aggregate`, or `purpose` is a **blocker** — the model is broken; don't ship it.
+- **Every attribute** has `name` / `type` / `required` / `shown-on-list`;
+  reference attributes (`type: ref`) add `to`.
+- **Every action** has `kind: command | query`. Every **command** additionally
+  carries the five Erik Actions Checklist fields — `confirmation-required`,
+  `cancellable`, `undoable`, `feedback-on-success`, `feedback-on-failure` — plus
+  `fires-events` (the events it fires; empty is a `warn`, not a blocker). Queries
+  carry none of the checklist.
+- **Every relationship** has `to` / `kind` / `label` / `aggregate-internal`, and
+  appears on both objects it connects (reciprocity; a one-sided relationship is a
+  finding).
+- **Events** live in each context's `events[]` with `name` / `fired-by` /
+  `consumed-by`. The First Strike / KUI / PAI event that `journey.md` is
+  measurable-as (in the worked example, `event:artifact-generated`) must exist
+  here as a named domain event.
+- **Single-context products use one `context:core`** — do not manufacture
+  bounded contexts. For genuinely pre-product or single-object surfaces, say the
+  model doesn't apply in `product.md`'s / `shape.md`'s narrative rather than emit
+  a stub `domain-map.json` (`plg-domain`).
+
+### Step 5 — Write `specs/design/_shared/sitemap.json`
+
+The page hierarchy as a graph, authored after the domain model so every page can
+reference real objects. Pages serve the journey's stages (the anchor-result
+screen where First Strike lands, the landing / sign-up pages of Select, the
+onboarding page of Setup) and each declares which domain objects it shows. This
+is the **initial cut** — `plg-flow` extends it as features add pages; author the
+pages the journey and domain model already imply, and don't speculatively invent
+deep pages the product hasn't earned yet.
+
+Write the file to match artifact-schema §6.3 exactly:
+
+```json
+{
+  "version": "2",
+  "nodes": [
+    {
+      "id": "page:dashboard",
+      "label": "Dashboard",
+      "depth": 0,
+      "kind": "primary",
+      "url": "/",
+      "purpose": "Daily entry point after auth",
+      "auth": "required",
+      "context": "context:collaboration",
+      "objects": ["object:collaboration.project", "object:collaboration.task"],
+      "screens": ["screen:dashboard/main"],
+      "appears-in-flows": ["flow:onboarding", "flow:daily-use"]
+    }
+  ],
+  "edges": [
+    {
+      "from": "page:dashboard",
+      "to": "page:settings",
+      "kind": "navigation",
+      "trigger": "user-menu",
+      "primary": false
+    }
+  ]
+}
+```
+
+Field rules:
+
+- **`nodes[]`** — each node: `id` (`page:<slug>`, nested `page:<parent>.<slug>`),
+  `label`, `depth` (0 = top level; more than 3 deep is a smell), `kind`
+  (`primary | secondary | utility | deep`), `url`, `purpose`, `auth`
+  (`none | required | conditional`), `context` (a `context:` id from
+  domain-map; `cross` only for a genuine multi-context page, documented in
+  nav-model.md), `objects[]` (object ids from domain-map — pages reference
+  objects that exist), `screens[]` (`screen:<feature>/<screen>` ids), and
+  `appears-in-flows[]` (`flow:` ids; may be empty at this stage — `plg-flow`
+  populates them).
+- **`edges[]`** — each edge: `from` / `to` (page ids), `kind`
+  (`navigation | redirect | conditional | inline-flow`), `trigger` (what causes
+  it, e.g. `user-menu`), `primary` (boolean).
+- Every `objects[]` reference must resolve to a domain-map object and every
+  `context` to a bounded context. An unresolved reference is a blocker — fix the
+  reference or add the element to `domain-map.json`; never invent silently
+  (`plg-domain`).
+
+### Step 6 — Write `specs/design/_shared/nav-model.md`
+
+The navigation model over the sitemap: the primary pattern, the per-level
+patterns, search, and how any cross-context pages are reached. Author it after
+the sitemap exists. Match artifact-schema §6.4 (unchanged from v0.1 except
+`version: "2"`):
+
+```yaml
+---
+version: "2"
+model: "hierarchical | faceted | flat | hub-and-spoke"
+patterns:
+  primary: "top-bar | side-rail | command-palette | bottom-tabs"
+  secondary: "contextual-sidebar | sub-tabs | breadcrumb-driven | none"
+  deep: "breadcrumb | back-only | tree-view | none"
+search:
+  presence: "primary | secondary | none"
+  scope: "global | scoped-to-page"
+---
+
+## Rationale
+Why this model fits this product. Reference the product's MOAT, audience, and
+the kinds of objects in the domain model. ~150–300 words.
+
+## Patterns rejected and why
+What was considered and turned down. Critical for downstream skills — without
+this, `plg-flow` and `plg-build` regenerate patterns already turned down.
+
+## Open questions
+Navigation decisions the product owner still owes.
+```
+
+Then the checks:
+
+- **`model` and `patterns` fit the sitemap** — a hierarchical model over a flat
+  three-page sitemap is over-built; a flat model over a deep tree loses the user.
+- **"Patterns rejected" is filled** — it is load-bearing; without it downstream
+  skills regenerate patterns you already turned down.
+- **Cross-context pages** (any sitemap node with `context: "cross"`) are explained
+  here — how the user reaches them and why the span is justified (`plg-domain`
+  treats a cross-context page as a smell to defend, not a default).
+
+### Step 7 — Write one `specs/design/features/<feature-slug>/shape.md` per feature
+
+The per-feature shaping doc — Shape Up's pitch. First, identify the features:
+read the journey (Setup's one real step, Showcase's First Strike, Scale's
+upgrade / advance) and the sitemap (pages cluster into features) to name the
+features the product scopes. Each becomes one `features/<feature-slug>/shape.md`.
+Don't invent features the journey and sitemap don't support; if the feature set
+is genuinely unclear, surface it as a follow-up question rather than guessing.
+
+For **each** feature, write the file to match artifact-schema §7.1 (unchanged
+from v0.1 except `version: "2"`):
+
+```yaml
+---
+version: "2"
+feature: "<feature-slug>"
+appetite: "small | medium | large"   # Shape Up appetites; team-defined in weeks
+problem: "<one-paragraph problem statement>"
+intended-outcome: "<what changes for the user when this ships>"
+target-stage: "search | select | setup | showcase | scale"
+target-milestone: "first-strike | kui | upgrade | ..."
+no-gos: ["<scope explicitly excluded>", ...]
+rabbit-holes: ["<known risk and mitigation>", ...]
+---
+
+## Solution sketch
+Free prose describing the shape of the solution — the structural concept, not the
+screens. ~200–500 words.
+
+## Open questions
+What needs to be decided in the flow phase (handed to `plg-flow`).
+```
+
+Then the checks (`references/shape-up.md`, and the fidelity ladder — CLAUDE.md
+Rule 4):
+
+- **One file per feature**, each tracing to a `target-stage` and
+  `target-milestone` that exist in `journey.md`.
+- **`appetite` is set deliberately** — it bounds scope; a "large" appetite on a
+  Setup-stage feature that must stay under the seven-minute clock is a
+  contradiction worth catching.
+- **Shape, not screens.** shape.md stops at the structural concept; wireframes,
+  low-fi, and high-fi are `plg-flow`'s rungs, authored later. Do not sketch
+  screens here — that skips a rung of the fidelity ladder.
+- **`no-gos` and `rabbit-holes` are real** — an empty no-gos list usually means
+  the scope hasn't been bounded yet; surface that rather than leaving it blank.
+
+### Step 8 — Unknowns go to `## Open questions`, never to a placeholder
+
+This is the load-bearing discipline across **all six** files
+(`plg-personal-anti-patterns`, and CLAUDE.md Rule 5): **you guide, you do not
+author Layer B for the user.** When the user says "I don't know" or leaves a
+field blank, do **not** fill it with a plausible-sounding default. A confident
+guess in a required field is worse than an honest open question.
+
+- **Prose artifacts** (`product.md`, `journey.md`, `nav-model.md`, and each
+  `shape.md`) carry a `## Open questions` section — record the owed decision
+  there (e.g. "MOAT market stance undecided; free-model can't be finalised until
+  it's set").
+- **JSON artifacts** (`domain-map.json`, `sitemap.json`) have no prose section.
+  Do **not** invent a field to hold unknowns. Instead: omit what you can't yet
+  justify (`plg-domain`: "when in doubt, don't add the object"; the same holds
+  for a speculative page), record the owed decision in the nearest prose
+  artifact's `## Open questions`, and raise anything blocking as a follow-up
+  `<question-form>` before writing. Never fabricate an object, action, event,
+  page, or reference just to satisfy the schema.
 
 ## Hard rules
 
-- **Two files, in order.** `product.md` (§6.1) first, then `journey.md` (§6.2).
-  Never journey.md before product.md exists. Nothing else this iteration.
-- **Write to disk; no `<artifact>` block.** This is a spec, not an HTML surface —
+- **Six files, in dependency order.** `product.md` (§6.1) → `journey.md` (§6.2) →
+  `domain-map.json` (§6.5) → `sitemap.json` (§6.3) → `nav-model.md` (§6.4) → one
+  `shape.md` per feature (§7.1). Each only after its inputs exist: never
+  journey.md before product.md, never the sitemap before the domain model (pages
+  reference objects), never a shape.md before the journey and sitemap name its
+  feature.
+- **Domain model before sitemap.** Objects are defined before pages, because
+  pages and screens reference them. Author `domain-map.json` first, then the
+  sitemap over it.
+- **Product-scope only.** Flow- and screen-scope artifacts (`flow-graph.json`,
+  `straight-line.md`, `wireframe.json`, `low-fi.json`, `high-fi.*`, `critique.md`)
+  belong to `plg-flow` / `plg-critique`, not here. The sitemap you write is the
+  initial cut; `plg-flow` extends it.
+- **Write to disk; no `<artifact>` block.** These are specs, not HTML surfaces —
   there is no iframe preview.
-- **Discovery before writing.** Turn 1 is the form and a stop, every time.
-- **No invented Layer B.** Unknowns are open questions, not defaults — each file
-  gets its own `## Open questions`.
-- **Schema §6.1 / §6.2 fields verbatim** — `version: "2"` and every block above.
-  Don't add fields the schema doesn't define.
+- **Discovery before writing.** Turn 1 is the product-shape form and a stop,
+  every time. When a later artifact needs inputs the prior ones didn't capture,
+  gather them with a short follow-up `<question-form>` before writing it — don't
+  invent.
+- **No invented Layer B.** Unknowns are open questions, not defaults. Prose
+  artifacts get a `## Open questions`; JSON artifacts hold nothing you can't
+  justify (record the gap in the nearest prose artifact, raise blockers as a
+  follow-up form).
+- **Schema fields verbatim** — §6.1 / §6.2 / §6.5 / §6.3 / §6.4 / §7.1, every
+  block with `version: "2"`. Don't add, rename, or drop fields the schema
+  defines; on every `kind: command` action, all five Erik Actions Checklist
+  fields are required.
