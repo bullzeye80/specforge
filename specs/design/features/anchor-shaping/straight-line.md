@@ -37,7 +37,7 @@ is a pre-first-strike detour — the line above has no branches before the aha.
 
 - **`aff:view-full-tree` → `place:product-workspace`** (primary) — **Keep.** This is
   the intended *forward* move after the aha: into the artifact tree where PAI/KUI
-  repeat (`artifact-generated` again and again, per `journey.md`). It moves the user
+  repeat (`event:shaping.artifact-generated` again and again, per `journey.md`). It moves the user
   forward, not sideways, exactly as `shape.md` requires. Pure navigation
   (`triggers-action: null`), so no command-vs-query smell.
 - **`aff:go-home` → `place:dashboard`** (secondary) — **Keep.** A low-friction,
@@ -85,7 +85,7 @@ bumper. `plg-critique` later checks each has a bumper tied to it.
    - *Bumper (Product):* a **progress indicator** sized to the real generation
      duration; and upstream, if the wait is structural, shrink skeleton depth per the
      `shape.md` rabbit-hole. Measurable on the gap between `idea-submitted` and
-     `artifact-generated`.
+     `event:shaping.artifact-generated`.
 
 ## Open questions
 

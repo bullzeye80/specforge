@@ -2,14 +2,14 @@
 version: "2"
 first-strike:
   description: "The first time a fuzzy idea becomes a structured spec — a skeleton product.md (name, ideal user, job, first-cut MOAT) is generated and viewable. The aha is seeing the vague idea come back as a disciplined anchor, not signing up or finishing onboarding."
-  measurable-as: "event:artifact-generated fires for the first time (the artifact being the skeleton product.md)"
+  measurable-as: "event:shaping.artifact-generated fires for the first time (the artifact being the skeleton product.md)"
   appears-in: "screen:shape/anchor-result"
 kui:
   description: "The habit signal — the founder keeps turning ideas and features into structured spec artifacts: advancing one product's tree (journey, sitemap, flows) and/or shaping new products. First Strike repeated with frequency and persistence."
-  measurable-as: "artifact-generated × 5 in 7-days"
+  measurable-as: "event:shaping.artifact-generated × 5 in 7-days"
 pai:
   description: "The single repeated activity that predicts retention: generating a spec artifact (an anchor, a journey, a feature shape, a flow) at least once on a given day."
-  measurable-as: "artifact-generated × 1 in any-day"
+  measurable-as: "event:shaping.artifact-generated × 1 in any-day"
   characteristics:
     leading-indicator: "A founder who generates a spec artifact on a given day is actively investing in a buildable tree; daily artifact generation precedes and predicts week-4 retention before retention itself can be measured."
     repetitive: true
@@ -27,8 +27,8 @@ stages:
     profile: "Deferred by default. Any workspace/profile detail that isn't required to shape the first anchor is a delete-or-defer candidate, moved to post-First-Strike personalisation."
     onboarding: "One real step: describe or paste the fuzzy idea. Sensible defaults over choices; specforge shapes the skeleton anchor from the user's own words rather than teaching concepts in isolation."
   showcase:
-    first-strike: "see first-strike above — event:artifact-generated fires for the first time (skeleton product.md)"
-    kui: "see kui above — artifact-generated × 5 in 7-days"
+    first-strike: "see first-strike above — event:shaping.artifact-generated fires for the first time (skeleton product.md)"
+    kui: "see kui above — event:shaping.artifact-generated × 5 in 7-days"
   scale:
     upgrade: "User hits the free-tier artifact meter (the value metric tied to KUI) and upgrades to keep generating — the full anchor depth, the downstream tree, and more products. Upgrade is one click, soft, at the moment the meter is reached (freemium paywall placement)."
     advance: "Grows into the Advanced level — authoring and maintaining the full multi-feature artifact tree (journey, flows, domain-map, critique): a buildable spec a coding agent runs with end to end."
@@ -62,13 +62,13 @@ author Layer B on their behalf or fill gaps with plausible defaults.
 
 **Showcase** is the heart. **First Strike** is the first time the fuzzy idea
 comes back as a structured skeleton `product.md` — modelled as the first firing
-of `event:artifact-generated`, landing on the anchor-result screen. It is the
+of `event:shaping.artifact-generated`, landing on the anchor-result screen. It is the
 *same* First Strike `product.md` names (skeleton anchor in under seven minutes),
 now expressed as a discrete measurable event rather than a feeling or a
 sign-up. The **PAI** — the leading indicator between the one-time First Strike
 and the habit threshold — is generating any spec artifact on a given day
-(`artifact-generated × 1 in any-day`). The **KUI** is that same event repeated to
-a habit: `artifact-generated × 5 in 7-days`. All three ride the one core domain
+(`event:shaping.artifact-generated × 1 in any-day`). The **KUI** is that same event repeated to
+a habit: `event:shaping.artifact-generated × 5 in 7-days`. All three ride the one core domain
 event, so PAI and KUI never drift apart.
 
 The KUI is also the **freemium value metric** — the meter the free tier gates on.
@@ -87,7 +87,7 @@ coding agent ships from without a design team.
 ### Failure modes this journey must defend against
 
 - **First Strike measured as sign-up or "feels productive."** It is neither: it
-  is the first `artifact-generated` event. If the skeleton anchor never fires,
+  is the first firing of `event:shaping.artifact-generated`. If the skeleton anchor never fires,
   the user has not experienced core value regardless of how far they got.
 - **Setup friction before the aha.** Asking for profile / team / plan before the
   idea is shaped pushes the seven-minute clock over budget and loses to the
@@ -112,7 +112,7 @@ product owner and to later skills, and are recorded here rather than guessed at.
    starting number, not a measured one (per `plg-foundations`). It should be
    refined against real activation/retention data once instrumented.
 2. **Is the core event artifact *generation* or artifact *handoff*?** The chosen
-   KUI/PAI event is `artifact-generated` — the instrumentable leading indicator.
+   KUI/PAI event is `event:shaping.artifact-generated` — the instrumentable leading indicator.
    The truer outcome is a spec that a coding agent actually builds from, which is
    lagging and partly external. If a handoff/export event can be instrumented,
    the owner should decide whether the value metric shifts to it.
