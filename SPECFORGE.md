@@ -93,11 +93,21 @@ Frontmatter uses OD's `od:` block plus the two specforge-new fields `od.spec.pro
 `od.spec.consumes` (see "Skill additions" below for the parser wiring). Concrete sketches — filenames
 come straight from the v0.2 schema §11:
 
+> **`od.mode` correction (learned running plg-shape end-to-end).** OD's `SkillMode` is a **closed
+> enum** — `image | video | audio | deck | design-system | template | prototype` (`skills.ts:30`) —
+> and it is the *surface/media* axis, NOT specforge's "mode-skill" identity. An unknown value like
+> `plg-shape` is silently ignored and the mode is **inferred from body text**, which mis-derived
+> `surface: audio` and injected a media-generation contract that skipped the discovery layer. So all
+> four specforge skills set **`od.mode: prototype`** (web surface, no media handling); their identity
+> as plg-shape/flow/critique/build lives in `triggers` + `od.spec.produces`. No `skills.ts` change is
+> needed for modes. (If we later want first-class mode tags, that's a separate `// SPECFORGE-MOD:`
+> extending the `SkillMode` enum + `normalizeMode` + surface mapping — not required for function.)
+
 **`skills/plg-shape/`** — fuzzy idea → product structure. Build smallest-first: `product.md` only,
 then add `journey.md` → `sitemap.json` → `nav-model.md` → `domain-map.json` → per-feature `shape.md`.
 ```yaml
 od:
-  mode: plg-shape
+  mode: prototype   # see note below — od.mode is OD's SURFACE enum, not our mode-skill identity
   craft:
     requires: [plg-foundations, plg-moat, plg-eureka, plg-bj-fogg, plg-domain, plg-personal-anti-patterns]
   spec:
@@ -107,7 +117,7 @@ od:
 **`skills/plg-flow/`** — shape → flow + wireframes.
 ```yaml
 od:
-  mode: plg-flow
+  mode: prototype   # OD surface enum; identity is via triggers + od.spec
   craft:
     requires: [plg-shape-up, plg-eureka, plg-domain, plg-bj-fogg]
   spec:
@@ -118,7 +128,7 @@ od:
 `critique.md`. Requires OD's own `state-coverage` + `laws-of-ux` alongside ours (states/surface checks).
 ```yaml
 od:
-  mode: plg-critique
+  mode: prototype   # OD surface enum; identity is via triggers + od.spec
   craft:
     requires: [plg-domain, plg-foundations, plg-personal-anti-patterns, state-coverage, laws-of-ux]
   spec:
@@ -128,7 +138,7 @@ od:
 **`skills/plg-build/`** (Phase 2) — low-fi → composed high-fi. Phase 1 delegates to OD's artifact loop.
 ```yaml
 od:
-  mode: plg-build
+  mode: prototype   # OD surface enum; identity is via triggers + od.spec
   craft:
     requires: [plg-personal-anti-patterns]
   spec:
@@ -301,7 +311,7 @@ Listed under "Added directories and files" above. Each skill follows OD's `SKILL
 
 ```yaml
 od:
-  mode: prototype | deck | template | design-system | plg-shape | plg-flow | plg-critique | plg-build
+  mode: prototype | deck | template | design-system | image | video | audio   # OD SkillMode enum (closed) — NOT a specforge axis
   craft:
     requires: [plg-foundations, plg-moat, ...]
   spec:
