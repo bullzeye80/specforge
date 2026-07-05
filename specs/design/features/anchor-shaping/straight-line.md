@@ -77,15 +77,14 @@ bumper. `plg-critique` later checks each has a bumper tied to it.
      they want it.
    - *Bumper (Product):* an **empty state** with a concrete example prompt as
      placeholder text and first-class paste support — lower the cost of the first
-     attempt rather than adding explanatory copy. Measurable on `idea-submitted`.
+     attempt rather than adding explanatory copy. Measurable as the drop from `place:describe-idea` to `event:shaping.artifact-generated` firing.
 
 2. **Generation wait at the `place:anchor-result` transition.** The skeleton takes long
    enough to generate that the founder doubts it and bails before the render.
    - *Diagnosis:* **Ability** (time cost), tied to the seven-minute clock.
    - *Bumper (Product):* a **progress indicator** sized to the real generation
      duration; and upstream, if the wait is structural, shrink skeleton depth per the
-     `shape.md` rabbit-hole. Measurable on the gap between `idea-submitted` and
-     `event:shaping.artifact-generated`.
+     `shape.md` rabbit-hole. Measurable on the latency from `aff:submit-idea` to `event:shaping.artifact-generated`.
 
 ## Open questions
 
