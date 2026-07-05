@@ -1,0 +1,70 @@
+{
+  "version": "2",
+  "feature": "anchor-shaping",
+  "use-case": "ShapeAnchor",
+  "entry": "place:describe-idea",
+  "exit-success": "place:anchor-result",
+  "exit-failure": ["place:describe-idea"],
+  "first-strike-place": "place:anchor-result",
+  "places": [
+    {
+      "id": "place:describe-idea",
+      "label": "Describe your idea",
+      "screen": "screen:onboarding/describe-idea",
+      "page": "page:onboarding",
+      "affordances": [
+        {
+          "id": "aff:submit-idea",
+          "label": "Shape my anchor",
+          "kind": "primary-action",
+          "leads-to": "place:anchor-result",
+          "triggers-action": "action:shaping.artifact.generate",
+          "action-kind": "command"
+        }
+      ]
+    },
+    {
+      "id": "place:anchor-result",
+      "label": "Anchor result",
+      "screen": "screen:shape/anchor-result",
+      "page": "page:shape",
+      "affordances": [
+        {
+          "id": "aff:view-full-tree",
+          "label": "View full tree",
+          "kind": "primary-action",
+          "leads-to": "place:product-workspace",
+          "triggers-action": null,
+          "action-kind": null
+        },
+        {
+          "id": "aff:go-home",
+          "label": "Back to dashboard",
+          "kind": "secondary-link",
+          "leads-to": "place:dashboard",
+          "triggers-action": null,
+          "action-kind": null
+        }
+      ]
+    },
+    {
+      "id": "place:product-workspace",
+      "label": "Product workspace",
+      "screen": "screen:product/tree",
+      "page": "page:product",
+      "affordances": []
+    },
+    {
+      "id": "place:dashboard",
+      "label": "Dashboard",
+      "screen": "screen:dashboard/main",
+      "page": "page:dashboard",
+      "affordances": []
+    }
+  ],
+  "connections": [
+    { "from": "aff:submit-idea", "to": "place:anchor-result" },
+    { "from": "aff:view-full-tree", "to": "place:product-workspace" },
+    { "from": "aff:go-home", "to": "place:dashboard" }
+  ]
+}
