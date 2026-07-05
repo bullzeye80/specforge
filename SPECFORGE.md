@@ -62,7 +62,7 @@ no frontmatter; H1 title → 1-para intro stating the *how (DESIGN.md) vs what (
 
 | File | Source reference | OD overlap → inherit vs author fresh | Status |
 |---|---|---|---|
-| `craft/plg-foundations.md` | `references/prod-led-foundations.md` | None — net-new PLG. Author fresh. | TBD (first deliverable) |
+| `craft/plg-foundations.md` | `references/prod-led-foundations.md` | None — net-new PLG. Author fresh. | **Authored** (specbox task 01; lint:craft + guard green) |
 | `craft/plg-moat.md` | `references/moat.md` | None. Author fresh. | TBD |
 | `craft/plg-eureka.md` | `references/eureka.md` | None. Author fresh. | TBD |
 | `craft/plg-bj-fogg.md` | `references/bj-fogg.md` | None. Author fresh. | TBD |
