@@ -5,9 +5,10 @@ description: |
   specs/design/_shared/product.md. Elicits the ideal user, the
   job-to-be-done (with push / pull / anxiety / habit forces), the MOAT
   free-model inputs, the three usage levels, and the 7-minute UDE test,
-  then writes a schema-conformant product.md to disk. This v0 produces
-  product.md ONLY. Use when the brief is "shape a product", "new product
-  spec", "define the product", or "start the PLG spec".
+  then writes a schema-conformant product.md — and, building on it, a
+  journey.md (Search→Scale roadmap with a measurable First Strike, KUI,
+  and PAI). Use when the brief is "shape a product", "new product spec",
+  "define the product", "map the user journey", or "start the PLG spec".
 triggers:
   - "shape"
   - "shape a product"
@@ -19,9 +20,9 @@ triggers:
 od:
   mode: prototype
   craft:
-    requires: [plg-foundations, plg-moat, plg-personal-anti-patterns]
+    requires: [plg-foundations, plg-moat, plg-eureka, plg-bj-fogg, plg-personal-anti-patterns]
   spec:
-    produces: [product.md]
+    produces: [product.md, journey.md]
     consumes: []
   design_system:
     requires: false
@@ -41,14 +42,14 @@ at the fields the user can actually answer.
 
 ## Scope — read before anything else
 
-**In scope (this v0):** exactly one file, `specs/design/_shared/product.md`,
-conforming to artifact-schema §6.1.
+**In scope:** two files, authored in order — `specs/design/_shared/product.md`
+(artifact-schema §6.1), then `specs/design/_shared/journey.md` (§6.2). journey.md
+builds on product.md and is authored second, never before it exists.
 
 **Out of scope (later plg-shape iterations, do NOT produce here):**
-`journey.md`, `sitemap.json`, `nav-model.md`, `domain-map.json`, and per-feature
-`shape.md`. If the user asks for those, say they come in a later pass and keep
-this run to `product.md`. Keeping v0 to one file is deliberate — it stays small
-and testable.
+`sitemap.json`, `nav-model.md`, `domain-map.json`, and per-feature `shape.md`. If
+the user asks for those, say they come in a later pass. Keeping the surface to
+product.md + journey.md is deliberate — it stays small and testable.
 
 ## Injected craft — the substance comes from here
 
@@ -63,6 +64,12 @@ authority; this body only orchestrates them.
   combine into one `free-model` (`free-trial | freemium | reverse-trial |
   demo`), justified by `free-model-rationale` with one line per input. `market`
   left as "not sure" is a blocker, not a value.
+- **`plg-eureka`** — activation discipline for `journey.md`: the Straight-Line,
+  Product vs Conversational Bumpers, and the full PAI (leading-indicator /
+  repetitive / tied-to-outcome / easy-to-understand / time-bound). Governs the
+  `first-strike`, `kui`, and `pai` blocks.
+- **`plg-bj-fogg`** — behaviour model (B=MAP) behind the journey's prompts and
+  the events that trigger Conversational Bumpers.
 - **`plg-personal-anti-patterns`** — the product-shape lens applied while
   shaping: asymmetry in the user's favour, symmetry on pricing, the free tier as
   a contract, decision-relief. Read the JTBD and MOAT answers through it.
@@ -172,7 +179,60 @@ Then run the checks the craft names before you consider the file done:
   it applies) an explicit note if this is not a PLG product and some fields don't
   apply, rather than force-fitting the framework.
 
-### Step 3 — Unknowns go to `## Open questions`, never to a placeholder
+### Step 3 — Write `specs/design/_shared/journey.md`
+
+Only after `product.md` exists. journey.md is the Search→Scale roadmap; it turns
+the First Strike named in `product.md`'s `levels.beginner` into a *measurable*
+event, sets the KUI (which must equal the MOAT pricing value metric), and adds
+the PAI. If product.md left the habit-forming repeated action undecided, gather
+it with a short follow-up `<question-form>` before writing — don't invent it.
+
+Write the file to match artifact-schema §6.2 exactly:
+
+```yaml
+---
+version: "2"
+first-strike:
+  description: "<the first time the user experiences core value>"
+  measurable-as: "<the event that fires, e.g. 'event:spec-published fires for the first time'>"
+  appears-in: "screen:<feature-slug>/<screen-slug>"
+kui:
+  description: "<the habit signal — repeated value experience>"
+  measurable-as: "<event × count × window, e.g. 'spec-published × 5 in 7-days'>"
+pai:
+  description: "<the single repeated activity that predicts retention>"
+  measurable-as: "<event × frequency, e.g. 'spec-published × 1 in any-day'>"
+  characteristics:
+    leading-indicator: "<how this leads retention>"
+    repetitive: true
+    tied-to-outcome: "<the desired outcome it predicts>"
+    easy-to-understand: "<one-sentence description>"
+    time-bound: "<frequency window>"
+stages:
+  search:   { problem-aware: "...", active-research: "..." }
+  select:   { visit: "...", sign-up: "..." }
+  setup:    { profile: "...", onboarding: "..." }
+  showcase: { first-strike: "<ref to first-strike above>", kui: "<ref to kui above>" }
+  scale:    { upgrade: "...", advance: "..." }
+---
+
+## Narrative
+The journey at each stage and the failure modes this product must defend against.
+```
+
+Then the craft checks before it's done (`plg-eureka`, `plg-foundations`):
+
+- **First Strike is the SAME one product.md named** — now a discrete fired event
+  (`measurable-as`) landing on a real `screen:` (`appears-in`), not a feeling.
+- **KUI is `event × count × window` AND equals product.md's pricing value metric.**
+  If they diverge, that's a `blocker` finding — surface it, don't reconcile silently.
+- **PAI is present and distinct** from First Strike (one-time) and KUI (habit
+  threshold): the single repeated activity that predicts retention, with all five
+  characteristics filled.
+- The Straight-Line holds — Setup steps that don't lead to First Strike are
+  delete-or-defer candidates worth noting in the Narrative.
+
+### Step 4 — Unknowns go to `## Open questions`, never to a placeholder
 
 This is the load-bearing discipline (`plg-personal-anti-patterns`, and CLAUDE.md
 Rule 5): **you guide, you do not author Layer B for the user.** When the user
@@ -184,10 +244,12 @@ an honest open question.
 
 ## Hard rules
 
-- **One file only.** `specs/design/_shared/product.md`. Nothing else this v0.
+- **Two files, in order.** `product.md` (§6.1) first, then `journey.md` (§6.2).
+  Never journey.md before product.md exists. Nothing else this iteration.
 - **Write to disk; no `<artifact>` block.** This is a spec, not an HTML surface —
   there is no iframe preview.
 - **Discovery before writing.** Turn 1 is the form and a stop, every time.
-- **No invented Layer B.** Unknowns are open questions, not defaults.
-- **Schema §6.1 fields verbatim** — `version: "2"`, and every block above. Don't
-  add fields the schema doesn't define.
+- **No invented Layer B.** Unknowns are open questions, not defaults — each file
+  gets its own `## Open questions`.
+- **Schema §6.1 / §6.2 fields verbatim** — `version: "2"` and every block above.
+  Don't add fields the schema doesn't define.
