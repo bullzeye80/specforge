@@ -63,12 +63,12 @@ no frontmatter; H1 title → 1-para intro stating the *how (DESIGN.md) vs what (
 | File | Source reference | OD overlap → inherit vs author fresh | Status |
 |---|---|---|---|
 | `craft/plg-foundations.md` | `references/prod-led-foundations.md` | None — net-new PLG. Author fresh. | **Authored** (specbox task 01; lint:craft + guard green) |
-| `craft/plg-moat.md` | `references/moat.md` | None. Author fresh. | TBD |
-| `craft/plg-eureka.md` | `references/eureka.md` | None. Author fresh. | TBD |
-| `craft/plg-bj-fogg.md` | `references/bj-fogg.md` | None. Author fresh. | TBD |
-| `craft/plg-shape-up.md` | `references/shape-up.md` | None (fidelity-ladder discipline is net-new). Author fresh. | TBD |
-| `craft/plg-domain.md` | `references/domain.md` | None (OOUX+DDD is net-new). Author fresh. | TBD |
-| `craft/plg-personal-anti-patterns.md` | `references/personal-anti-patterns.md` | **Overlaps** OD `anti-ai-slop.md` — author fresh but cross-reference it ("extends, does not replace"); keep any shared hex/rule list in sync per the `AI_DEFAULT_INDIGO` precedent. | TBD |
+| `craft/plg-moat.md` | `references/moat.md` | None. Author fresh. | **Authored** (specbox task 02) |
+| `craft/plg-eureka.md` | `references/eureka.md` | None. Author fresh. | **Authored** (specbox task 03) |
+| `craft/plg-bj-fogg.md` | `references/bj-fogg.md` | None. Author fresh. | **Authored** (specbox task 04) |
+| `craft/plg-shape-up.md` | `references/shape-up.md` | None (fidelity-ladder discipline is net-new). Author fresh. | **Authored** (specbox task 05) |
+| `craft/plg-domain.md` | `references/domain.md` | None (OOUX+DDD is net-new). Author fresh. | **Authored** (specbox task 06) |
+| `craft/plg-personal-anti-patterns.md` | `references/personal-anti-patterns.md` | **Overlaps** OD `anti-ai-slop.md` — author fresh but cross-reference it ("extends, does not replace"); keep any shared hex/rule list in sync per the `AI_DEFAULT_INDIGO` precedent. | **Authored** (specbox task 07; extends anti-ai-slop, no hex dup) |
 
 We do **not** re-author these — OD already ships them (confirmed inventory, walk §5): `typography.md`,
 `typography-hierarchy.md`, `typography-hierarchy-editorial.md`, `color.md`, `state-coverage.md`,
