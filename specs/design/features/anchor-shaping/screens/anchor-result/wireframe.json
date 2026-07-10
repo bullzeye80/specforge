@@ -1,0 +1,36 @@
+{
+  "version": "2",
+  "screen": "screen:shape/anchor-result",
+  "purpose": "The First-Strike surface: render the generated skeleton product.md inline, document-style, stamped with provenance — where event:shaping.artifact-generated fires for the first time. Read-only; refinement lives downstream in the product workspace.",
+  "kind": "page",
+  "auth": "required",
+  "page": "page:shape",
+  "objects-shown": ["object:shaping.artifact", "object:shaping.product"],
+  "objects-acted-on": [],
+  "regions": [
+    {
+      "id": "region:anchor-document",
+      "label": "Skeleton anchor",
+      "role": "primary-content",
+      "contains": [
+        { "kind": "heading", "level": 1, "text-intent": "The shaped product's name — the anchor's title, generated from the fuzzy idea", "personalised": true },
+        { "kind": "body-text", "text-intent": "Provenance stamp: what generated this skeleton and when, marking it as an actionable spec rather than magic (required — no provenance-free output)", "personalised": true },
+        { "kind": "heading", "level": 2, "text-intent": "Section label: Ideal user", "personalised": false },
+        { "kind": "body-text", "text-intent": "Generated ideal-user cut; where the idea under-specifies it, an open question is shown instead of a fabricated value (the treatment — inline marker vs gathered list — is a deferred open question)", "personalised": true },
+        { "kind": "heading", "level": 2, "text-intent": "Section label: Job to be done", "personalised": false },
+        { "kind": "body-text", "text-intent": "Generated JTBD statement, or an open question where the idea gave nothing to work with", "personalised": true },
+        { "kind": "heading", "level": 2, "text-intent": "Section label: First-cut MOAT", "personalised": false },
+        { "kind": "body-text", "text-intent": "Generated first-cut differentiation — a deliberate first cut, not the full MOAT (Intermediate depth is kept off this screen)", "personalised": true }
+      ]
+    },
+    {
+      "id": "region:forward-actions",
+      "label": "Where to next",
+      "role": "secondary",
+      "contains": [
+        { "kind": "primary-cta", "leads-to": "screen:product/tree", "text-intent": "Move forward into the full artifact tree where refinement and repeat generation (PAI/KUI) happen — the intended post-aha move" },
+        { "kind": "secondary-cta", "leads-to": "screen:dashboard/main", "text-intent": "Symmetric low-friction return to the dashboard retention surface" }
+      ]
+    }
+  ]
+}
