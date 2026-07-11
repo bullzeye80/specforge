@@ -1,0 +1,32 @@
+{
+  "version": "2",
+  "screen": "screen:onboarding/describe-idea",
+  "purpose": "The single Setup-stage step: capture the founder's fuzzy idea in their own words and hand off to shaping.",
+  "kind": "page",
+  "auth": "required",
+  "page": "page:onboarding",
+  "objects-shown": ["object:shaping.idea-seed"],
+  "objects-acted-on": ["object:shaping.product", "object:shaping.idea-seed"],
+  "regions": [
+    {
+      "id": "region:masthead",
+      "label": "Masthead",
+      "role": "system",
+      "contains": [
+        { "kind": "logo", "text-intent": "specforge brand mark — orients the user to where they are; deliberately no nav, so nothing pulls off the one step", "personalised": false }
+      ]
+    },
+    {
+      "id": "region:intake",
+      "label": "Idea intake",
+      "role": "primary-content",
+      "contains": [
+        { "kind": "heading", "level": 1, "text-intent": "The single instruction: describe your idea in your own words", "personalised": false },
+        { "kind": "body-text", "text-intent": "One line of value-framing reassurance that a rough, fuzzy, half-formed idea is exactly what is expected — lowers the 'is my idea good enough' hesitation (drop-off #2, a motivation bumper)", "personalised": false },
+        { "kind": "body-text", "text-intent": "A worked example of the kind of fuzzy input specforge shapes, so the founder is not staring at a blank box (drop-off #1, an ability bumper) — one example, not a picker", "personalised": false },
+        { "kind": "field", "text-intent": "Free-text intake for the fuzzy idea, typed or pasted — captures object:shaping.idea-seed.text (required); a non-empty but thin idea is passed through, not validated here", "personalised": false },
+        { "kind": "primary-cta", "action": "action:shaping.product.create", "leads-to": "screen:shape/anchor-result", "text-intent": "The one primary action — commit the idea, create the product from the seed, and move to shaping" }
+      ]
+    }
+  ]
+}

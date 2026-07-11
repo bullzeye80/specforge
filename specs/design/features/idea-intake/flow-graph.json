@@ -1,0 +1,37 @@
+{
+  "version": "2",
+  "feature": "idea-intake",
+  "use-case": "IntakeIdea",
+  "entry": "place:describe-idea",
+  "exit-success": "place:anchor-result",
+  "exit-failure": ["place:describe-idea"],
+  "first-strike-place": "place:anchor-result",
+  "places": [
+    {
+      "id": "place:describe-idea",
+      "label": "Describe your idea",
+      "screen": "screen:onboarding/describe-idea",
+      "page": "page:onboarding",
+      "affordances": [
+        {
+          "id": "aff:submit-idea",
+          "label": "Shape this idea",
+          "kind": "primary-action",
+          "leads-to": "place:anchor-result",
+          "triggers-action": "action:shaping.product.create",
+          "action-kind": "command"
+        }
+      ]
+    },
+    {
+      "id": "place:anchor-result",
+      "label": "Anchor result",
+      "screen": "screen:shape/anchor-result",
+      "page": "page:shape",
+      "affordances": []
+    }
+  ],
+  "connections": [
+    { "from": "aff:submit-idea", "to": "place:anchor-result" }
+  ]
+}
