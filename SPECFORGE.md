@@ -189,7 +189,7 @@ When upstream merges conflict on these files, the `SPECFORGE-MOD:` markers are t
 
 | File | What we changed | Why |
 |---|---|---|
-| _(none yet — populated as we go)_ | | |
+| `package.json` (root) | Added `lint:specs` script and appended `&& tsx ./scripts/lint-spec-ownership.ts` to the `guard` chain. (JSON can't carry an inline `// SPECFORGE-MOD:` marker — this row is the provenance.) | Enforce the spec-tree screen-ownership invariant (each screen owned by exactly one feature via `shape.md` `owns-screens`) in CI via `pnpm guard`. On upstream sync, keep the appended `&& tsx ./scripts/lint-spec-ownership.ts` and the `lint:specs` key. |
 
 **Discipline:**
 
