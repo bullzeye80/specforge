@@ -1,6 +1,7 @@
 ---
 version: "2"
 feature: "acquisition-landing"
+owns-screens: ["screen:landing/main", "screen:pricing/main"]
 appetite: "medium"
 problem: "A problem-aware founder is comparing screen-generators (v0/Lovable/Stitch/Figma-AI) that produce screens, not decisions, while their coding agent keeps flailing on vague prompts. The unauthenticated surface has one job the whole product hangs on: reframe the category from 'generate a screen' to 'produce a disciplined spec', present the freemium offer honestly, and earn a self-serve click to sign-up — with no demo gate and no card ask."
 intended-outcome: "A visiting founder understands within roughly one screen that specforge produces a disciplined spec (not another screen), sees the Free + Pro offer plainly, and self-serves straight to sign-up rather than reverting to prompting Claude directly."

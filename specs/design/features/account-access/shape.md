@@ -1,6 +1,7 @@
 ---
 version: "2"
 feature: "account-access"
+owns-screens: ["screen:auth/sign-up", "screen:auth/sign-in"]
 appetite: "small"
 problem: "Sign-up is the last thing between a decided visitor and First Strike, and it runs against the seven-minute clock. Every field or step here is friction that pushes the clock over budget and hands the user back to the incumbent habit (prompting Claude directly, which is free and instant). Auth must be strong, but building it in-house is the wrong bet for a solo founder's product."
 intended-outcome: "A founder creates an account — or returns — with the lightest possible credentials (email / magic-link), no card and no sales gate, and lands directly on the single onboarding step. Returning users open a session and go straight to the dashboard."

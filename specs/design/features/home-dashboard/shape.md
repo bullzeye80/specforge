@@ -1,6 +1,7 @@
 ---
 version: "2"
 feature: "home-dashboard"
+owns-screens: ["screen:dashboard/main"]
 appetite: "small"
 problem: "Users churn when they can't see what they've gotten out of the product — the journey names this as a failure mode this product must defend against. The dashboard is the retention surface: it must make the growing artifact tree visible across the founder's products and be the always-available hub of the daily-use loop, all without becoming a notification centre, activity feed, or a place where things accumulate to be triaged."
 intended-outcome: "A returning founder sees their products and each one's depth and status at a glance, re-enters a product's tree in one hop, or starts a new product — the KUI made visible, so the value they've accrued is legible and the habit takes."

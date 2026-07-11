@@ -1,6 +1,7 @@
 ---
 version: "2"
 feature: "upgrade-billing"
+owns-screens: ["screen:billing/plan", "screen:billing/paywall"]
 appetite: "medium"
 problem: "The Scale stage is where freemium converts. The free tier delivers the Beginner outcome and gates on the artifact meter — the value metric tied to the KUI — so pricing must kick in softly at the exact moment the meter trips, never by fencing off a feature and never as a blocking wall. And because the product's whole stance is symmetry, cancellation and downgrade must be as easy as sign-up, with none of the dark patterns (hidden cancel, are-you-sure loops, retention-discount modals) that erode the trust the discipline is selling."
 intended-outcome: "A founder who hits the free artifact meter can upgrade in one click at that moment to keep generating, see plan and usage plainly, and downgrade or cancel just as easily — a soft transition, not a wall, with the price always visible."

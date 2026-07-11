@@ -1,6 +1,7 @@
 ---
 version: "2"
 feature: "account-settings"
+owns-screens: ["screen:settings/profile"]
 appetite: "small"
 problem: "Profile was deliberately deferred off the Straight-Line at onboarding, so an account surface must exist to hold it — edited when the user actually chooses to, not forced on the seven-minute clock. That same surface owes the founder a symmetric-escape delete-account path, because the product's stance is that leaving is as easy as joining. The risk is the opposite failure: a settings screen that accretes toggles with clear right answers and becomes a config dumping ground."
 intended-outcome: "A founder can edit their profile — a discrete entity, edited in a modal — when they choose, and delete their account as easily as they created it, with no config bloat and no buried destructive path."

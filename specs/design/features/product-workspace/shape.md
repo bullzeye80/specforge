@@ -1,6 +1,7 @@
 ---
 version: "2"
 feature: "product-workspace"
+owns-screens: ["screen:product/tree", "screen:artifact/view", "screen:feature/detail"]
 appetite: "large"
 problem: "This is where the retention habit forms and the product's endgame lives. Within one product, the founder generates and refines the downstream artifact tree — journey, sitemap, domain-map, flows, feature shapes — and this is the surface where PAI and KUI repeat (generating a spec artifact) and where the Advanced level (a full multi-feature tree a coding agent ships from without a design team) is reached. It must make the anchor→downstream structure legible and keep generating the next artifact the low-friction repeated action, without becoming a heavy IDE a Beginner has to learn."
 intended-outcome: "The founder works one product's tree — sees the anchor and every downstream artifact and feature, generates the next artifact, and views / refines / edits / exports any one — repeating the value that forms the retention habit and grows the product toward a buildable spec."
