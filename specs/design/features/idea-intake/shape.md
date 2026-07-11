@@ -1,6 +1,7 @@
 ---
 version: "2"
 feature: "idea-intake"
+owns-screens: ["screen:onboarding/describe-idea"]
 appetite: "small"
 problem: "The Setup stage runs the seven-minute clock, and the journey has ruled that there is exactly one on-line step here: getting the founder's fuzzy idea into the product. Anything else on this step — profile, workspace naming, plan selection, a concept-teaching wizard — pushes the clock over budget and loses to the habit of just prompting Claude. The intake must accept a genuinely fuzzy idea in the user's own words and turn it into a product to shape, without authoring the user's Layer B for them."
 intended-outcome: "A signed-up founder describes or pastes their fuzzy idea in one step, and a product is created from their own words — moving them directly toward the anchor result where First Strike fires. No profile, no plan, no tour in between."

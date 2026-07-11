@@ -1,6 +1,7 @@
 ---
 version: "2"
 feature: "anchor-shaping"
+owns-screens: ["screen:shape/anchor-result"]
 appetite: "medium"
 problem: "This is where the founder experiences core value for the first time: the fuzzy idea must come back as a disciplined skeleton product.md — name, ideal user, job, first-cut MOAT — visibly more structured than what re-prompting Claude produces, and fast. If the skeleton isn't both faster than re-prompting and visibly more disciplined, the user reverts to the free, instant habit. First Strike is measured on this exact surface: event:shaping.artifact-generated fires here for the first time."
 intended-outcome: "The founder sees their vague idea returned as a structured skeleton anchor and recognises the aha — 'this is more disciplined than my prompt gave me' — with the first event:shaping.artifact-generated fired and the anchor viewable, all inside the seven-minute clock."
