@@ -389,7 +389,39 @@ Authored by: `plg-shape`. Read by: `plg-flow` (every flow operates on objects/ac
 
 ### 7.1 `shape.md`
 
-Unchanged from v0.1. Bumps `version` to `"2"`.
+**v0.2 change:** adds the optional-but-recommended `owns-screens` frontmatter field —
+the list of `screen:` ids this feature **canonically owns** (its surfaces). Everything
+else is unchanged from v0.1; `version` bumps to `"2"`.
+
+```yaml
+---
+version: "2"
+feature: "anchor-shaping"
+owns-screens:
+  - screen:shape/anchor-result
+# … existing shape.md frontmatter (appetite, problem, no-gos, rabbit-holes, …)
+---
+```
+
+**Screen ownership rule (v0.2).** Per §3, every screen has exactly **one** canonical
+home: `features/<owning-feature>/screens/<screen-slug>/`. `owns-screens` makes that
+home explicit at the feature that owns it. A flow may **reference** screens it does not
+own (an entry it inherits, an exit destination it hands off to), but it authors
+screen-scope artifacts (`wireframe.json`, `low-fi.json`, `high-fi.*`) **only** for the
+screens in its own `owns-screens`.
+
+- **Invariant:** a `screen:` id appears in exactly one feature's `owns-screens`. The
+  same screen listed by two features is an error (a future cross-feature lint enforces
+  this; until then it is a convention checked by hand).
+- **Derivation guidance (not fabrication):** a feature owns the surface(s) its
+  `shape.md` prose already claims (e.g. *"a single Showcase-stage surface — Anchor
+  result"*). `plg-shape` populates `owns-screens` from that solution sketch; it does not
+  invent ownership. Where a feature's owned surface is genuinely undetermined, that is an
+  open question, not a guess (Rule 5 / `plg-personal-anti-patterns`).
+- **Consequence for `plg-flow`:** its wireframe pass enumerates *this feature's*
+  `owns-screens` (intersected with the screens the flow graph actually touches), not
+  every distinct screen referenced by the flow graph. Referenced-but-not-owned screens
+  are linked by `screen:` id and authored by their owner's own pass.
 
 ### 7.2 `flow-graph.json`
 
@@ -701,8 +733,8 @@ This document.
 
 Updated for v0.2:
 
-- **`plg-shape`** produces: `product.md`, `journey.md` (with PAI), `sitemap.json` (with `context` field), `nav-model.md`, **`domain-map.json`** (bounded contexts, entities/value objects, aggregates, commands/queries, events), and one `shape.md` per feature it scopes.
-- **`plg-flow`** produces: per feature, `flow-graph.json` (with `use-case` and `action-kind` inheritance), `straight-line.md`, and per screen, `wireframe.json` and `low-fi.json` (with Erik's enumerated states and optional simplicity-pass). May update `sitemap.json` to add new pages.
+- **`plg-shape`** produces: `product.md`, `journey.md` (with PAI), `sitemap.json` (with `context` field), `nav-model.md`, **`domain-map.json`** (bounded contexts, entities/value objects, aggregates, commands/queries, events), and one `shape.md` per feature it scopes (each declaring its **`owns-screens`**, per §7.1).
+- **`plg-flow`** produces: per feature, `flow-graph.json` (with `use-case` and `action-kind` inheritance), `straight-line.md`, and per screen it **owns** (this feature's `shape.md` `owns-screens`, per §7.1 — not every screen the flow references), `wireframe.json` and `low-fi.json` (with Erik's enumerated states and optional simplicity-pass). May update `sitemap.json` to add new pages.
 - **`plg-critique`** produces: `critique.md` at any scope. Reads everything; writes only critiques. Runs seven check categories: ia, ih, domain, surface, simplicity, states, funnel.
 - **`plg-build`** (Phase 2): produces `high-fi.json` and `high-fi.html` with `od-comment-tags`. In Phase 1 these are composed via OD's existing artifact loop or hand-authored.
 

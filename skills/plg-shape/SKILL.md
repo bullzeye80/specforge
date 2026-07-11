@@ -533,13 +533,14 @@ features the product scopes. Each becomes one `features/<feature-slug>/shape.md`
 Don't invent features the journey and sitemap don't support; if the feature set
 is genuinely unclear, surface it as a follow-up question rather than guessing.
 
-For **each** feature, write the file to match artifact-schema §7.1 (unchanged
-from v0.1 except `version: "2"`):
+For **each** feature, write the file to match artifact-schema §7.1 (`version: "2"`;
+v0.2 adds `owns-screens`):
 
 ```yaml
 ---
 version: "2"
 feature: "<feature-slug>"
+owns-screens: ["screen:<area>/<screen-slug>", ...]  # the surfaces THIS feature owns
 appetite: "small | medium | large"   # Shape Up appetites; team-defined in weeks
 problem: "<one-paragraph problem statement>"
 intended-outcome: "<what changes for the user when this ships>"
@@ -568,6 +569,15 @@ Rule 4):
 - **Shape, not screens.** shape.md stops at the structural concept; wireframes,
   low-fi, and high-fi are `plg-flow`'s rungs, authored later. Do not sketch
   screens here — that skips a rung of the fidelity ladder.
+- **`owns-screens` declares surface ownership, it does not sketch screens.** Derive
+  it from the sitemap: the pages that cluster into this feature, and the `screen:`
+  ids their `screens[]` carry. List the surfaces the `## Solution sketch` prose
+  already claims as *this feature's own* (e.g. a "single Showcase-stage surface —
+  Anchor result" → `screen:shape/anchor-result`). **Exactly one owner per screen**
+  across all features — a screen another feature owns (a shared entry, an exit
+  destination) is *not* listed here even if this feature's flow will pass through it.
+  If which feature owns a surface is genuinely ambiguous, that's an open question,
+  not a guess (Rule 5). This list is what gates `plg-flow`'s wireframe pass (§7.1).
 - **`no-gos` and `rabbit-holes` are real** — an empty no-gos list usually means
   the scope hasn't been bounded yet; surface that rather than leaving it blank.
 

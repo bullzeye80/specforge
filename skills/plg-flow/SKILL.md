@@ -4,8 +4,8 @@ description: |
   Shape one already-shaped feature into its flow- and fat-marker spec — the
   breadboard as a flow graph (places, affordances, connections, the
   first-strike-place, and the application use-case), the happy-path
-  straight-line narrative, and one structural wireframe per screen the flow
-  touches — authored under specs/design/features/<feature-slug>/. Reads the
+  straight-line narrative, and one structural wireframe per screen this feature
+  owns — authored under specs/design/features/<feature-slug>/. Reads the
   feature's shape.md and the product-scope inputs (sitemap.json,
   domain-map.json, journey.md, product.md); it never rewrites them. Use when
   the brief is "flow", "map the flow", "breadboard this feature", "draw the
@@ -31,7 +31,7 @@ od:
     consumes: [shape.md, sitemap.json, domain-map.json, journey.md, product.md]
   design_system:
     requires: false
-  example_prompt: "Shape the flow for the anchor-shaping feature — breadboard the places and affordances from its shape.md and the sitemap, mark the first-strike place, write the straight-line to first strike, then wireframe each screen the flow touches."
+  example_prompt: "Shape the flow for the anchor-shaping feature — breadboard the places and affordances from its shape.md and the sitemap, mark the first-strike place, write the straight-line to first strike, then wireframe each screen this feature owns (its shape.md owns-screens)."
 ---
 
 # plg-flow · the flow- and fat-marker artifact set (v1)
@@ -47,12 +47,13 @@ exist:
 2. `straight-line.md` — the Shape-Up happy-path narrative: the single golden path
    from entry to first strike, plus the steps that *don't* lead there (schema
    §7.3, fields per v0.1 §7.3).
-3. `screens/<screen-slug>/wireframe.json` — one per **distinct screen the flow
-   graph touches**: the screen's regions and what each region contains,
-   structurally — the fat-marker "what", with **no layout, no grid, no
-   positioning, and no states** (schema §8.1, structure per v0.1 §8.1, bumped to
-   `version: "2"`). Those deferred concerns are the `low-fi.json` rung, which
-   comes later.
+3. `screens/<screen-slug>/wireframe.json` — one per **screen this feature owns**
+   (its `shape.md` `owns-screens`, intersected with the screens the flow graph
+   touches — schema §7.1), never for screens it only references: the screen's
+   regions and what each region contains, structurally — the fat-marker "what",
+   with **no layout, no grid, no positioning, and no states** (schema §8.1,
+   structure per v0.1 §8.1, bumped to `version: "2"`). Those deferred concerns are
+   the `low-fi.json` rung, which comes later.
 
 You **consume** the already-authored inputs — you read them, you never rewrite
 them: `features/<feature-slug>/shape.md`, `_shared/sitemap.json`,
@@ -67,7 +68,9 @@ using the file tools. There is no iframe preview and no `index.html`.
 
 **In scope (this v1):** three artifacts for one feature, in order —
 `flow-graph.json` (§7.2), then `straight-line.md` (§7.3), then one
-`wireframe.json` (§8.1) **per distinct screen the flow graph references**. The
+`wireframe.json` (§8.1) **per screen this feature owns** (its `shape.md`
+`owns-screens`, intersected with the screens the flow graph touches — §7.1; screens
+it only references are linked, not authored). The
 flow graph is the breadboard rung; the straight-line is its happy-path companion;
 the wireframes are the **regions half of the fat-marker rung** (`plg-shape-up`:
 `wireframe.json` holds *what's on each screen, roughly grouped*; `low-fi.json`
@@ -277,16 +280,34 @@ Then the checks (`plg-eureka`, `plg-shape-up`, `plg-bj-fogg`):
   `target-time` blows the seven-minute clock, that's a finding, not something to
   paper over (`plg-foundations`).
 
-### Step 4 — Write one `wireframe.json` per screen the flow touches
+### Step 4 — Write one `wireframe.json` per screen **this feature owns**
 
-Only after both `flow-graph.json` and `straight-line.md` exist. Enumerate the
-**distinct** `screen:` ids across the flow graph's `places[]` (several places may
-share one screen — you write one wireframe per screen, not per place). For each,
-write:
+Only after both `flow-graph.json` and `straight-line.md` exist. The screens you
+author are **this feature's owned screens**, not every screen the flow references.
+Take `shape.md`'s `owns-screens` list (schema §7.1) and **intersect** it with the
+distinct `screen:` ids the flow graph's `places[]` actually touch. Author one
+wireframe per screen in that intersection. For each, write:
 
 `specs/design/features/<feature-slug>/screens/<screen-slug>/wireframe.json`
 
 where `<screen-slug>` is the part after the `/` in `screen:<feature>/<screen-slug>`.
+
+**Screens the flow references but this feature does not own** — a shared entry you
+inherit from an upstream feature, or an exit destination you hand off to (typically
+a place with an empty `affordances` array) — are **linked by `screen:` id, never
+authored here.** They have exactly one canonical home: their owner's
+`features/<owner>/screens/…`, authored by that feature's own plg-flow pass. Writing
+their regions here would duplicate a single-owned screen and, with no affordance of
+your own behind them, fabricate structure (Rule 5 / `plg-personal-anti-patterns`).
+
+- If `shape.md` has **no `owns-screens`** field (a legacy shape), do not fall back to
+  "every screen the flow touches" — surface it: raise a `<question-form>` (or, if
+  proceeding autonomously, a `## Open questions` entry in `straight-line.md`) asking
+  which screens this feature owns, and author only what's confirmed.
+- **Sanity check, not the rule:** every owned screen you author should also have at
+  least one affordance in the flow graph. An owned screen with an empty affordance
+  array in *this* flow is a smell — either the flow graph is missing an affordance or
+  the ownership is misassigned; flag it rather than wireframing an actionless surface.
 
 The wireframe is **structural**: the screen's regions and what each region
 contains, roughly grouped — the fat-marker "what". **No layout, no grid, no
@@ -374,9 +395,15 @@ in a required field is worse than an honest open question.
 ## Hard rules
 
 - **Three artifacts, in order, per feature.** `flow-graph.json` (§7.2) →
-  `straight-line.md` (§7.3) → one `wireframe.json` (§8.1) per distinct screen the
-  flow touches. The straight-line only after the flow graph exists; the wireframes
-  only after both exist.
+  `straight-line.md` (§7.3) → one `wireframe.json` (§8.1) per screen this feature
+  **owns** (`shape.md` `owns-screens` ∩ screens the flow touches — §7.1), never for
+  a screen it only references. The straight-line only after the flow graph exists;
+  the wireframes only after both exist.
+- **Own before you author.** A screen has exactly one canonical home (§3). Author a
+  wireframe only for screens in *this* feature's `owns-screens`. A shared entry you
+  inherit or an exit destination you hand off to is linked by `screen:` id and left
+  to its owner's pass. If `shape.md` lacks `owns-screens`, surface it as an open
+  question — do not fall back to "every screen the flow touches".
 - **Consume, never rewrite.** `shape.md`, `sitemap.json`, `domain-map.json`,
   `journey.md`, and `product.md` are inputs you read. This skill writes only the
   flow-scope files and the per-screen `wireframe.json`; it does not edit its inputs.
